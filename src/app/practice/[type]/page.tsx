@@ -29,24 +29,27 @@ export default function PracticePage({ params }: { params: Promise<{ type: strin
     if (countdown > 0) {
       const timer = setInterval(() => {
         setCountdown((prev) => prev - 1);
-        if (countdown === 1) mathlyAudio?.playSuccess(); // Final beep
+        if (countdown === 1) mathlyAudio?.playSuccess();
       }, 1000);
       return () => clearInterval(timer);
     }
   }, [countdown]);
 
   useEffect(() => {
-    if (initialTime === 0 || countdown > 0) return;
+    if (initialTime === 0 || countdown > 0 || isFinished) return;
     
-    if (timeLeft > 0 && !isFinished) {
-      const timer = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(timer);
-    } else if (timeLeft === 0) {
-      setIsFinished(true);
-    }
-  }, [timeLeft, isFinished, initialTime, countdown]);
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          setIsFinished(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [initialTime, countdown, isFinished]);
 
   const handleSuccess = () => {
     if (isFinished) return;
@@ -87,8 +90,8 @@ export default function PracticePage({ params }: { params: Promise<{ type: strin
           <div className="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-8">
             <Trophy className="text-yellow-500" size={48} />
           </div>
-          <h1 className="text-4xl font-black text-gray-800 mb-2">Time's Up!</h1>
-          <p className="text-gray-500 mb-12">Amazing sprint! Here's how you did:</p>
+          <h1 className="text-4xl font-black text-gray-800 mb-2">Time&apos;s Up!</h1>
+          <p className="text-gray-500 mb-12">Amazing sprint! Here&apos;s how you did:</p>
           
           <div className="grid grid-cols-2 gap-4 mb-12">
             <div className="bg-gray-50 p-6 rounded-2xl">
@@ -210,6 +213,7 @@ export default function PracticePage({ params }: { params: Promise<{ type: strin
                 </div>
 
                 <ProblemCard
+                  key={`${type}-${digits}`}
                   type={type as OperationType}
                   digits={digits}
                   onSuccess={handleSuccess}

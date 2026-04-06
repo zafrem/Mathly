@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, RefreshCw } from 'lucide-react';
 import { Problem, generateProblem, OperationType } from '@/lib/math-engine';
@@ -20,15 +20,6 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
   const [carries, setCarries] = useState<string[]>(() => new Array(problem.answer.toString().length).fill(''));
   const [status, setStatus] = useState<'idle' | 'correct' | 'incorrect'>('idle');
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Sync with props if they change
-  useEffect(() => {
-    const newProblem = generateProblem(type, digits);
-    setProblem(newProblem);
-    setUserAnswer('');
-    setCarries(new Array(newProblem.answer.toString().length).fill(''));
-    setStatus('idle');
-  }, [type, digits]);
 
   const handleNext = () => {
     const p = generateProblem(type, digits);
