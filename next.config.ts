@@ -2,8 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: 'export',
-  // If your repository is "Mathly", the basePath should match the repo name for GitHub Pages
-  // basePath: '/Mathly', 
+  // Required for GitHub Pages deployment to a sub-path
+  basePath: '/Mathly',
   images: {
     unoptimized: true,
   },
