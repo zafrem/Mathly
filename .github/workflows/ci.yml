@@ -1,4 +1,4 @@
-name: Mathly CI
+name: Mathly CI/CD
 
 on:
   push:
@@ -6,8 +6,11 @@ on:
   pull_request:
     branches: [ main, master ]
 
+permissions:
+  contents: write
+
 jobs:
-  build:
+  build_and_deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,5 +29,15 @@ jobs:
       - name: Lint Check
         run: npm run lint
 
-      - name: Build Verification
+      - name: Build and Export
         run: npm run build
+
+      - name: Add .nojekyll
+        run: touch out/.nojekyll
+
+      - name: Deploy to GitHub Pages
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: out
+          branch: gh-pages
