@@ -10,6 +10,15 @@ import { cn } from '@/lib/utils';
 import { mathlyAudio } from '@/lib/audio';
 import confetti from 'canvas-confetti';
 
+export function generateStaticParams() {
+  return [
+    { type: 'addition' },
+    { type: 'subtraction' },
+    { type: 'multiplication' },
+    { type: 'division' },
+  ];
+}
+
 export default function PracticePage({ params }: { params: Promise<{ type: string }> }) {
   const { type } = use(params);
   const router = useRouter();
