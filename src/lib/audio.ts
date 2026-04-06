@@ -1,11 +1,16 @@
 'use client';
 
+interface MathlyWindow extends Window {
+  webkitAudioContext?: typeof AudioContext;
+}
+
 class MathlyAudio {
   private ctx: AudioContext | null = null;
 
   private init() {
     if (!this.ctx) {
-      this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const Win = window as unknown as MathlyWindow;
+      this.ctx = new (window.AudioContext || Win.webkitAudioContext)();
     }
   }
 

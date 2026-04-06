@@ -6,7 +6,6 @@ import { Check, X, RefreshCw } from 'lucide-react';
 import { Problem, generateProblem, OperationType } from '@/lib/math-engine';
 import { cn } from '@/lib/utils';
 import { mathlyAudio } from '@/lib/audio';
-import confetti from 'canvas-confetti';
 
 interface ProblemCardProps {
   type: OperationType;
@@ -16,16 +15,19 @@ interface ProblemCardProps {
 }
 
 export default function ProblemCard({ type, digits, onSuccess, onFailure }: ProblemCardProps) {
-  const [problem, setProblem] = useState<Problem | null>(null);
+  const [problem, setProblem] = useState<Problem>(() => generateProblem(type, digits));
   const [userAnswer, setUserAnswer] = useState<string>('');
-  const [carries, setCarries] = useState<string[]>([]);
+  const [carries, setCarries] = useState<string[]>(() => new Array(problem.answer.toString().length).fill(''));
   const [status, setStatus] = useState<'idle' | 'correct' | 'incorrect'>('idle');
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Sync with props if they change
   useEffect(() => {
-    const p = generateProblem(type, digits);
-    setProblem(p);
-    setCarries(new Array(p.answer.toString().length).fill(''));
+    const newProblem = generateProblem(type, digits);
+    setProblem(newProblem);
+    setUserAnswer('');
+    setCarries(new Array(newProblem.answer.toString().length).fill(''));
+    setStatus('idle');
   }, [type, digits]);
 
   const handleNext = () => {
@@ -82,7 +84,6 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
     >
       {isVertical ? (
         <div className="flex flex-col items-end space-y-2 mb-8 font-mono text-6xl font-black text-gray-800 tracking-widest relative">
-          {/* Carry Inputs */}
           <div className="flex gap-2 mb-2 pr-1">
             {Array.from({ length: maxLen }).map((_, i) => (
               <input

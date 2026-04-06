@@ -157,8 +157,8 @@ export default function PracticePage({ params }: { params: Promise<{ type: strin
         </header>
 
         <main className="relative">
-          <AnimatePresence>
-            {countdown > 0 && (
+          <AnimatePresence mode="wait">
+            {countdown > 0 ? (
               <motion.div
                 key="countdown"
                 initial={{ opacity: 0, scale: 0.5 }}
@@ -176,48 +176,49 @@ export default function PracticePage({ params }: { params: Promise<{ type: strin
                 </motion.div>
                 <p className="text-2xl font-bold text-gray-400 uppercase tracking-[0.5em]">Get Ready</p>
               </motion.div>
-            )}
-
-            {countdown === 0 && (
+            ) : (
               <motion.div
                 key="practice-content"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <AnimatePresence>
-                  {showCelebration && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.5, y: 0 }}
-                animate={{ opacity: 1, scale: 1.2, y: -100 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-x-0 flex justify-center pointer-events-none z-10"
-              >
-                <div className="bg-white px-8 py-4 rounded-full shadow-2xl border-2 border-yellow-400 flex items-center gap-3">
-                  <Trophy className="text-yellow-500" />
-                  <span className="font-black text-2xl text-gray-800">10 IN A ROW!</span>
+                <div className="relative">
+                  <AnimatePresence>
+                    {showCelebration && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.5, y: 0 }}
+                        animate={{ opacity: 1, scale: 1.2, y: -100 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-x-0 flex justify-center pointer-events-none z-10"
+                      >
+                        <div className="bg-white px-8 py-4 rounded-full shadow-2xl border-2 border-yellow-400 flex items-center gap-3">
+                          <Trophy className="text-yellow-500" />
+                          <span className="font-black text-2xl text-gray-800">10 IN A ROW!</span>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
+
+                <div className="text-center mb-12">
+                  <h1 className="text-3xl font-black text-gray-800 capitalize mb-2">
+                    {type} Practice
+                  </h1>
+                  <p className="text-gray-500">
+                    {digits} Digit Problems • {initialTime === 0 ? 'Unlimited Time' : `${initialTime}s Sprint`}
+                  </p>
+                </div>
+
+                <ProblemCard
+                  type={type as OperationType}
+                  digits={digits}
+                  onSuccess={handleSuccess}
+                  onFailure={handleFailure}
+                />
               </motion.div>
             )}
           </AnimatePresence>
-
-          <div className="text-center mb-12">
-            <h1 className="text-3xl font-black text-gray-800 capitalize mb-2">
-              {type} Practice
-            </h1>
-            <p className="text-gray-500">
-              {digits} Digit Problems • {initialTime === 0 ? 'Unlimited Time' : `${initialTime}s Sprint`}
-            </p>
-          </div>
-
-          <ProblemCard
-            type={type as OperationType}
-            digits={digits}
-            onSuccess={handleSuccess}
-            onFailure={handleFailure}
-          />
-        </motion.div>
-      )}
-    </main>
+        </main>
       </div>
     </div>
   );
