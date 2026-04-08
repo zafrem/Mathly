@@ -1,4 +1,7 @@
-export type OperationType = 'addition' | 'subtraction' | 'multiplication' | 'division' | 'gcd' | 'lcm' | 'fraction';
+export type OperationType = 
+  | 'addition' | 'subtraction' | 'multiplication' | 'division' 
+  | 'gcd' | 'lcm' 
+  | 'fraction_addition' | 'fraction_subtraction' | 'fraction_multiplication' | 'fraction_division';
 
 export interface Problem {
   id: string;
@@ -50,6 +53,13 @@ export const generateProblem = (type: OperationType, digits: number): Problem =>
   let answer = 0;
   let denom1, denom2, answerDenom;
 
+  // Helpers for fractions
+  const genFrac = () => {
+    const d = Math.floor(Math.random() * 8) + 2;
+    const n = Math.floor(Math.random() * (d - 1)) + 1;
+    return [n, d];
+  };
+
   switch (type) {
     case 'addition':
       operator = '+';
@@ -83,27 +93,27 @@ export const generateProblem = (type: OperationType, digits: number): Problem =>
       num2 = Math.floor(Math.random() * (lMax - lMin + 1)) + lMin;
       answer = (num1 * num2) / calculateGCD(num1, num2);
       break;
-    case 'fraction':
-      const ops = ['+', '-', '×'];
-      operator = ops[Math.floor(Math.random() * ops.length)];
-      denom1 = Math.floor(Math.random() * 8) + 2;
-      denom2 = Math.floor(Math.random() * 8) + 2;
-      num1 = Math.floor(Math.random() * (denom1 - 1)) + 1;
-      num2 = Math.floor(Math.random() * (denom2 - 1)) + 1;
-      
-      let resNum, resDenom;
-      if (operator === '+') {
-        resNum = num1 * denom2 + num2 * denom1;
-        resDenom = denom1 * denom2;
-      } else if (operator === '-') {
-        if (num1/denom1 < num2/denom2) { [num1, num2] = [num2, num1]; [denom1, denom2] = [denom2, denom1]; }
-        resNum = num1 * denom2 - num2 * denom1;
-        resDenom = denom1 * denom2;
-      } else {
-        resNum = num1 * num2;
-        resDenom = denom1 * denom2;
-      }
-      [answer, answerDenom] = simplify(resNum, resDenom);
+    
+    case 'fraction_addition':
+      operator = '+';
+      [num1, denom1] = genFrac(); [num2, denom2] = genFrac();
+      [answer, answerDenom] = simplify(num1 * denom2 + num2 * denom1, denom1 * denom2);
+      break;
+    case 'fraction_subtraction':
+      operator = '-';
+      [num1, denom1] = genFrac(); [num2, denom2] = genFrac();
+      if (num1/denom1 < num2/denom2) { [num1, num2] = [num2, num1]; [denom1, denom2] = [denom2, denom1]; }
+      [answer, answerDenom] = simplify(num1 * denom2 - num2 * denom1, denom1 * denom2);
+      break;
+    case 'fraction_multiplication':
+      operator = '×';
+      [num1, denom1] = genFrac(); [num2, denom2] = genFrac();
+      [answer, answerDenom] = simplify(num1 * num2, denom1 * denom2);
+      break;
+    case 'fraction_division':
+      operator = '÷';
+      [num1, denom1] = genFrac(); [num2, denom2] = genFrac();
+      [answer, answerDenom] = simplify(num1 * denom2, denom1 * num2);
       break;
   }
 

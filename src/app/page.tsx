@@ -13,7 +13,10 @@ const categories = [
   { id: 'division', name: 'Division', icon: Divide, color: 'bg-purple-500' },
   { id: 'gcd', name: 'GCD', icon: Brain, color: 'bg-indigo-500' },
   { id: 'lcm', name: 'LCM', icon: Sparkles, color: 'bg-orange-500' },
-  { id: 'fraction', name: 'Fractions', icon: Divide, color: 'bg-teal-500' },
+  { id: 'fraction_addition', name: 'Frac +', icon: Plus, color: 'bg-teal-500' },
+  { id: 'fraction_subtraction', name: 'Frac -', icon: Minus, color: 'bg-cyan-500' },
+  { id: 'fraction_multiplication', name: 'Frac ×', icon: X, color: 'bg-rose-500' },
+  { id: 'fraction_division', name: 'Frac ÷', icon: Divide, color: 'bg-emerald-500' },
 ];
 
 interface ScoreEntry {
@@ -57,7 +60,13 @@ export default function LandingPage() {
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-7xl font-black text-gray-900 mb-6 tracking-tight">Math<span className="text-blue-500">ly</span></motion.h1>
           <div className="max-w-md mx-auto mb-12 relative group">
             <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={24} />
-            <input type="text" placeholder="Enter your name to rank..." value={userName} onChange={(e) => handleNameChange(e.target.value)} className="w-full pl-14 pr-6 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50 focus:bg-white focus:border-blue-400 outline-none text-xl font-bold transition-all shadow-inner" />
+            <input
+              type="text"
+              placeholder="Enter your name to rank..."
+              value={userName}
+              onChange={(e) => handleNameChange(e.target.value)}
+              className="w-full pl-14 pr-6 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50 focus:bg-white focus:border-blue-400 outline-none text-xl font-bold text-gray-900 transition-all shadow-inner"
+            />
           </div>
           <div className="flex flex-wrap justify-center gap-8 mb-16">
             <div className="bg-gray-50 p-6 rounded-3xl border-2 border-gray-100">

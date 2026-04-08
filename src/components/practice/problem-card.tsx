@@ -96,7 +96,7 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
 
   const isVertical = digits >= 2 && (type === 'addition' || type === 'subtraction');
   const isFactorization = type === 'gcd' || type === 'lcm';
-  const isFraction = type === 'fraction';
+  const isFraction = type.startsWith('fraction_');
   const maxLen = Math.max(problem.num1.toString().length, problem.num2.toString().length);
   const num1Str = problem.num1.toString().padStart(maxLen, ' ');
   const num2Str = problem.num2.toString().padStart(maxLen, ' ');
@@ -118,9 +118,9 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
             <span className="text-gray-300">=</span>
           </div>
           <div className="flex flex-col items-center gap-4">
-            <input ref={inputRef} type="text" value={userAnswer} onChange={handleInputChange} autoFocus className={cn("w-32 text-4xl font-black text-center p-4 rounded-xl border-4 outline-none transition-all", status === 'idle' ? "bg-gray-50 border-gray-100 focus:border-blue-400" : status === 'correct' ? "bg-green-50 border-green-400 text-green-600" : "bg-red-50 border-red-400 text-red-600 animate-shake")} placeholder="Num" />
+            <input ref={inputRef} type="text" value={userAnswer} onChange={handleInputChange} autoFocus className={cn("w-32 text-4xl font-black text-center p-4 rounded-xl border-4 outline-none transition-all", status === 'idle' ? "bg-gray-50 border-gray-100 focus:border-blue-400 text-gray-900" : status === 'correct' ? "bg-green-50 border-green-400 text-green-600" : "bg-red-50 border-red-400 text-red-600 animate-shake")} placeholder="Num" />
             <div className="w-full h-1.5 bg-gray-800 rounded-full" />
-            <input type="text" value={userDenom} onChange={handleDenomChange} className={cn("w-32 text-4xl font-black text-center p-4 rounded-xl border-4 outline-none transition-all", status === 'idle' ? "bg-gray-50 border-gray-100 focus:border-blue-400" : status === 'correct' ? "bg-green-50 border-green-400 text-green-600" : "bg-red-50 border-red-400 text-red-600 animate-shake")} placeholder="Den" />
+            <input type="text" value={userDenom} onChange={handleDenomChange} className={cn("w-32 text-4xl font-black text-center p-4 rounded-xl border-4 outline-none transition-all", status === 'idle' ? "bg-gray-50 border-gray-100 focus:border-blue-400 text-gray-900" : status === 'correct' ? "bg-green-50 border-green-400 text-green-600" : "bg-red-50 border-red-400 text-red-600 animate-shake")} placeholder="Den" />
           </div>
         </div>
       ) : isFactorization ? (
@@ -155,7 +155,7 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
 
       {!isFraction && (
         <div className="relative">
-          <input ref={inputRef} type="text" value={userAnswer} onChange={handleInputChange} autoFocus className={cn("w-full text-6xl font-black text-right p-6 rounded-[1.5rem] border-4 transition-all duration-200 outline-none shadow-inner", status === 'idle' ? "border-gray-100 focus:border-blue-400 bg-gray-50" : status === 'correct' ? "border-green-400 bg-green-50 text-green-600" : "border-red-400 bg-red-50 text-red-600 animate-shake")} placeholder="?" />
+          <input ref={inputRef} type="text" value={userAnswer} onChange={handleInputChange} autoFocus className={cn("w-full text-6xl font-black text-right p-6 rounded-[1.5rem] border-4 transition-all duration-200 outline-none shadow-inner", status === 'idle' ? "border-gray-100 focus:border-blue-400 bg-gray-50 text-gray-900" : status === 'correct' ? "border-green-400 bg-green-50 text-green-600" : "border-red-400 bg-red-50 text-red-600 animate-shake")} placeholder="?" />
           <div className="absolute left-6 top-1/2 -translate-y-1/2">
             <AnimatePresence>
               {status === 'correct' && (<motion.div initial={{ scale: 0, rotate: -20 }} animate={{ scale: 1, rotate: 0 }} className="text-green-500"><Check size={56} strokeWidth={4} /></motion.div>)}
