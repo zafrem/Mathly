@@ -9,6 +9,7 @@ export function generateStaticParams() {
     { type: 'division' },
     { type: 'gcd' },
     { type: 'lcm' },
+    { type: 'fraction' },
   ];
 }
 

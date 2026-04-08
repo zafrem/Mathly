@@ -3,7 +3,7 @@
 import { useState, use, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Trophy, Zap, Target, Timer, RotateCcw } from 'lucide-center';
+import { ArrowLeft, Trophy, Zap, Timer, RotateCcw } from 'lucide-react';
 import ProblemCard from '@/components/practice/problem-card';
 import { OperationType } from '@/lib/math-engine';
 import { cn } from '@/lib/utils';

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Plus, Minus, X, Divide, Zap, Brain, Rocket, Sparkles, User, Trophy } from 'lucide-react';
@@ -13,6 +13,7 @@ const categories = [
   { id: 'division', name: 'Division', icon: Divide, color: 'bg-purple-500' },
   { id: 'gcd', name: 'GCD', icon: Brain, color: 'bg-indigo-500' },
   { id: 'lcm', name: 'LCM', icon: Sparkles, color: 'bg-orange-500' },
+  { id: 'fraction', name: 'Fractions', icon: Divide, color: 'bg-teal-500' },
 ];
 
 interface ScoreEntry {
@@ -25,25 +26,22 @@ interface ScoreEntry {
 export default function LandingPage() {
   const [digits, setDigits] = useState(2);
   const [timeLimit, setTimeLimit] = useState(60);
-  const [userName, setUserName] = useState('');
-  const [scores, setScores] = useState<ScoreEntry[]>([]);
-
-  useEffect(() => {
-    const savedName = localStorage.getItem('mathly-user');
-    if (savedName) setUserName(savedName);
-
-    const savedScores = JSON.parse(localStorage.getItem('mathly-scores') || '[]');
-    setScores(savedScores.sort((a: ScoreEntry, b: ScoreEntry) => b.score - a.score).slice(0, 5));
-  }, []);
+  const [userName, setUserName] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem('mathly-user') || '' : ''));
+  const [scores] = useState<ScoreEntry[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = JSON.parse(localStorage.getItem('mathly-scores') || '[]');
+      return saved.sort((a: ScoreEntry, b: ScoreEntry) => b.score - a.score).slice(0, 5);
+    }
+    return [];
+  });
 
   const handleNameChange = (name: string) => {
     setUserName(name);
-    localStorage.setItem('mathly-user', name);
+    if (typeof window !== 'undefined') localStorage.setItem('mathly-user', name);
   };
 
   return (
     <div className="min-h-screen bg-white overflow-hidden pb-20">
-      {/* Background Decorations */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
         <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="absolute -top-24 -left-24 text-blue-50/50"><Brain size={300} /></motion.div>
         <motion.div animate={{ y: [0, -20, 0] }} transition={{ duration: 5, repeat: Infinity }} className="absolute top-1/4 right-12 text-yellow-50/50"><Zap size={150} /></motion.div>
@@ -54,26 +52,13 @@ export default function LandingPage() {
         <header className="text-center mb-16">
           <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-blue-600 font-bold mb-6">
             <Rocket size={20} />
-            <span>RANKING SYSTEM LIVE</span>
+            <span>FRACTIONS NOW LIVE</span>
           </motion.div>
-          
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-7xl font-black text-gray-900 mb-6 tracking-tight">
-            Math<span className="text-blue-500">ly</span>
-          </motion.h1>
-
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-7xl font-black text-gray-900 mb-6 tracking-tight">Math<span className="text-blue-500">ly</span></motion.h1>
           <div className="max-w-md mx-auto mb-12 relative group">
-            <div className="absolute inset-y-0 left-4 flex items-center text-gray-400 group-focus-within:text-blue-500 transition-colors">
-              <User size={24} />
-            </div>
-            <input
-              type="text"
-              placeholder="Enter your name to rank..."
-              value={userName}
-              onChange={(e) => handleNameChange(e.target.value)}
-              className="w-full pl-14 pr-6 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50 focus:bg-white focus:border-blue-400 outline-none text-xl font-bold transition-all shadow-inner"
-            />
+            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={24} />
+            <input type="text" placeholder="Enter your name to rank..." value={userName} onChange={(e) => handleNameChange(e.target.value)} className="w-full pl-14 pr-6 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50 focus:bg-white focus:border-blue-400 outline-none text-xl font-bold transition-all shadow-inner" />
           </div>
-          
           <div className="flex flex-wrap justify-center gap-8 mb-16">
             <div className="bg-gray-50 p-6 rounded-3xl border-2 border-gray-100">
               <span className="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Difficulty</span>
@@ -83,7 +68,6 @@ export default function LandingPage() {
                 ))}
               </div>
             </div>
-
             <div className="bg-gray-50 p-6 rounded-3xl border-2 border-gray-100">
               <span className="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Time Limit</span>
               <div className="flex gap-2">
@@ -98,17 +82,8 @@ export default function LandingPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
           {categories.map((cat, index) => (
             <motion.div key={cat.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
-              <Link
-                href={userName ? `/practice/${cat.id}?digits=${digits}&time=${timeLimit}&user=${encodeURIComponent(userName)}` : '#'}
-                onClick={() => !userName && alert('Please enter your name first!')}
-                className={cn(
-                  "group relative block p-8 rounded-3xl transition-all duration-300 border-2",
-                  userName ? "bg-gray-50 hover:bg-white hover:shadow-2xl hover:border-gray-100" : "bg-gray-100 opacity-50 cursor-not-allowed"
-                )}
-              >
-                <div className={`${cat.color} w-16 h-16 rounded-2xl flex items-center justify-center text-white mb-6 transform group-hover:scale-110 group-hover:rotate-6 transition-transform`}>
-                  <cat.icon size={32} />
-                </div>
+              <Link href={userName ? `/practice/${cat.id}?digits=${digits}&time=${timeLimit}&user=${encodeURIComponent(userName)}` : '#'} onClick={() => !userName && alert('Please enter your name first!')} className={cn("group relative block p-8 rounded-3xl transition-all duration-300 border-2", userName ? "bg-gray-50 hover:bg-white hover:shadow-2xl hover:border-gray-100" : "bg-gray-100 opacity-50 cursor-not-allowed")}>
+                <div className={`${cat.color} w-16 h-16 rounded-2xl flex items-center justify-center text-white mb-6 transform group-hover:scale-110 group-hover:rotate-6 transition-transform`}><cat.icon size={32} /></div>
                 <h3 className="text-2xl font-bold text-gray-800 mb-2">{cat.name}</h3>
                 <p className="text-gray-500 text-sm">Practice speed and accuracy.</p>
               </Link>
@@ -116,13 +91,9 @@ export default function LandingPage() {
           ))}
         </div>
 
-        {/* Scoreboard */}
         <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto bg-gray-900 rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 p-8 opacity-10"><Trophy size={120} /></div>
-          <h2 className="text-3xl font-black mb-8 flex items-center gap-3">
-            <Trophy className="text-yellow-400" />
-            Hall of Speed
-          </h2>
+          <h2 className="text-3xl font-black mb-8 flex items-center gap-3"><Trophy className="text-yellow-400" /> Hall of Speed</h2>
           <div className="space-y-4">
             {scores.length > 0 ? scores.map((s, i) => (
               <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
@@ -133,15 +104,10 @@ export default function LandingPage() {
                 </div>
                 <span className="text-2xl font-black text-blue-400">{Math.floor(s.score).toLocaleString()}</span>
               </div>
-            )) : (
-              <p className="text-center text-gray-500 py-10 font-bold uppercase tracking-widest">No rankings yet. Start sprinting!</p>
-            )}
+            )) : <p className="text-center text-gray-500 py-10 font-bold uppercase tracking-widest">No rankings yet. Start sprinting!</p>}
           </div>
         </motion.div>
-
-        <footer className="mt-32 text-center text-gray-400">
-          <p>2026 zafrem - Computational Repetition Done Right</p>
-        </footer>
+        <footer className="mt-32 text-center text-gray-400"><p>2026 zafrem - Computational Repetition Done Right</p></footer>
       </div>
     </div>
   );
