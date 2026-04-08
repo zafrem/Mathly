@@ -41,7 +41,7 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
     const n = parseInt(num);
     const d = parseInt(den || '1');
     
-    if (problem.type === 'fraction') {
+    if (problem.type.startsWith('fraction_')) {
       if (n === problem.answer && d === (problem.answerDenom || 1)) {
         const time = performance.now() - startTime.current;
         setStatus('correct');
