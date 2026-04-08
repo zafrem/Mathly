@@ -1,4 +1,4 @@
-export type OperationType = 'addition' | 'subtraction' | 'multiplication' | 'division';
+export type OperationType = 'addition' | 'subtraction' | 'multiplication' | 'division' | 'gcd' | 'lcm';
 
 export interface Problem {
   id: string;
@@ -8,10 +8,32 @@ export interface Problem {
   answer: number;
   type: OperationType;
   digits: number;
+  factors1?: number[];
+  factors2?: number[];
 }
 
+const getPrimeFactors = (n: number): number[] => {
+  const factors: number[] = [];
+  let d = 2;
+  let temp = n;
+  while (temp >= d * d) {
+    if (temp % d === 0) {
+      factors.push(d);
+      temp /= d;
+    } else {
+      d++;
+    }
+  }
+  if (temp > 1) factors.push(temp);
+  return factors;
+};
+
+const calculateGCD = (a: number, b: number): number => {
+  return b === 0 ? a : calculateGCD(b, a % b);
+};
+
 export const generateProblem = (type: OperationType, digits: number): Problem => {
-  const min = Math.pow(10, digits - 1);
+  const min = Math.pow(10, Math.max(0, digits - 1));
   const max = Math.pow(10, digits) - 1;
 
   let num1 = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -32,7 +54,6 @@ export const generateProblem = (type: OperationType, digits: number): Problem =>
       break;
     case 'multiplication':
       operator = '×';
-      // For multiplication, maybe limit second number digits to keep it manageable
       const multMax = Math.pow(10, Math.min(digits, 2)) - 1;
       const multMin = Math.pow(10, Math.min(digits, 1) - 1);
       num2 = Math.floor(Math.random() * (multMax - multMin + 1)) + multMin;
@@ -40,12 +61,27 @@ export const generateProblem = (type: OperationType, digits: number): Problem =>
       break;
     case 'division':
       operator = '÷';
-      // Ensure clean division
       const divMax = Math.pow(10, Math.min(digits, 1)) - 1;
       const divMin = 2;
       num2 = Math.floor(Math.random() * (divMax - divMin + 1)) + divMin;
       answer = Math.floor(Math.random() * (max - min + 1)) + min;
       num1 = answer * num2;
+      break;
+    case 'gcd':
+      operator = 'GCD';
+      // Keep GCD numbers slightly smaller for mental math
+      num1 = Math.floor(Math.random() * (max - min + 1)) + min;
+      num2 = Math.floor(Math.random() * (max - min + 1)) + min;
+      answer = calculateGCD(num1, num2);
+      break;
+    case 'lcm':
+      operator = 'LCM';
+      // For LCM, use smaller numbers to keep the answer within reasonable limits
+      const lcmMin = Math.pow(10, Math.max(0, digits - 2));
+      const lcmMax = Math.pow(10, Math.max(1, digits - 1)) * 5;
+      num1 = Math.floor(Math.random() * (lcmMax - lcmMin + 1)) + lcmMin;
+      num2 = Math.floor(Math.random() * (lcmMax - lcmMin + 1)) + lcmMin;
+      answer = (num1 * num2) / calculateGCD(num1, num2);
       break;
   }
 
@@ -57,6 +93,8 @@ export const generateProblem = (type: OperationType, digits: number): Problem =>
     answer,
     type,
     digits,
+    factors1: getPrimeFactors(num1),
+    factors2: getPrimeFactors(num2),
   };
 };
 

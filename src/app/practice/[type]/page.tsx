@@ -7,6 +7,8 @@ export function generateStaticParams() {
     { type: 'subtraction' },
     { type: 'multiplication' },
     { type: 'division' },
+    { type: 'gcd' },
+    { type: 'lcm' },
   ];
 }
 

@@ -11,6 +11,8 @@ const categories = [
   { id: 'subtraction', name: 'Subtraction', icon: Minus, color: 'bg-red-500' },
   { id: 'multiplication', name: 'Multiplication', icon: X, color: 'bg-green-500' },
   { id: 'division', name: 'Division', icon: Divide, color: 'bg-purple-500' },
+  { id: 'gcd', name: 'GCD', icon: Brain, color: 'bg-indigo-500' },
+  { id: 'lcm', name: 'LCM', icon: Sparkles, color: 'bg-orange-500' },
 ];
 
 interface ScoreEntry {

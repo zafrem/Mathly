@@ -67,6 +67,7 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
   if (!problem) return null;
 
   const isVertical = digits >= 2 && (type === 'addition' || type === 'subtraction');
+  const isFactorization = type === 'gcd' || type === 'lcm';
   const maxLen = Math.max(problem.num1.toString().length, problem.num2.toString().length);
   const num1Str = problem.num1.toString().padStart(maxLen, ' ');
   const num2Str = problem.num2.toString().padStart(maxLen, ' ');
@@ -77,9 +78,35 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="max-w-md w-full mx-auto p-12 rounded-[2.5rem] bg-white shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-gray-100"
+      className="max-w-xl w-full mx-auto p-12 rounded-[2.5rem] bg-white shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-gray-100"
     >
-      {isVertical ? (
+      {isFactorization ? (
+        <div className="mb-10">
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center gap-6 p-4 rounded-2xl bg-gray-50 border border-gray-100">
+              <span className="text-4xl font-black text-gray-800 w-24 text-right">{problem.num1}</span>
+              <div className="h-10 w-px bg-gray-200" />
+              <div className="flex flex-wrap gap-2">
+                {problem.factors1?.map((f, i) => (
+                  <span key={i} className="px-3 py-1 bg-blue-100 text-blue-600 rounded-lg text-sm font-bold">{f}</span>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center gap-6 p-4 rounded-2xl bg-gray-50 border border-gray-100">
+              <span className="text-4xl font-black text-gray-800 w-24 text-right">{problem.num2}</span>
+              <div className="h-10 w-px bg-gray-200" />
+              <div className="flex flex-wrap gap-2">
+                {problem.factors2?.map((f, i) => (
+                  <span key={i} className="px-3 py-1 bg-purple-100 text-purple-600 rounded-lg text-sm font-bold">{f}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="mt-8 text-center text-xl font-bold text-blue-500 uppercase tracking-widest">
+            Find the {type.toUpperCase()}
+          </div>
+        </div>
+      ) : isVertical ? (
         <div className="flex flex-col items-end space-y-2 mb-8 font-mono text-6xl font-black text-gray-800 tracking-widest relative">
           <div className="flex gap-2 mb-2 pr-1">
             {Array.from({ length: maxLen }).map((_, i) => (
@@ -94,7 +121,6 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
               />
             )).reverse()}
           </div>
-
           <div className="pr-1">{num1Str}</div>
           <div className="relative pr-1">
             <span className="absolute -left-16 text-blue-500 font-sans">{problem.operator}</span>
@@ -104,9 +130,7 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
         </div>
       ) : (
         <div className="text-right mb-8">
-          <div className="text-6xl font-black text-gray-800 tracking-tight">
-            {problem.num1}
-          </div>
+          <div className="text-6xl font-black text-gray-800 tracking-tight">{problem.num1}</div>
           <div className="text-6xl font-black text-gray-800 tracking-tight flex items-center justify-end gap-4 mt-2">
             <span className="text-blue-500">{problem.operator}</span>
             {problem.num2}
@@ -130,24 +154,15 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
           )}
           placeholder="?"
         />
-        
         <div className="absolute left-6 top-1/2 -translate-y-1/2">
           <AnimatePresence>
             {status === 'correct' && (
-              <motion.div
-                initial={{ scale: 0, rotate: -20 }}
-                animate={{ scale: 1, rotate: 0 }}
-                className="text-green-500"
-              >
+              <motion.div initial={{ scale: 0, rotate: -20 }} animate={{ scale: 1, rotate: 0 }} className="text-green-500">
                 <Check size={56} strokeWidth={4} />
               </motion.div>
             )}
             {status === 'incorrect' && (
-              <motion.div
-                initial={{ scale: 0, rotate: 20 }}
-                animate={{ scale: 1, rotate: 0 }}
-                className="text-red-500"
-              >
+              <motion.div initial={{ scale: 0, rotate: 20 }} animate={{ scale: 1, rotate: 0 }} className="text-red-500">
                 <X size={56} strokeWidth={4} />
               </motion.div>
             )}
@@ -156,10 +171,7 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
       </div>
 
       <div className="mt-10 flex justify-center">
-        <button
-          onClick={handleNext}
-          className="flex items-center gap-2 px-8 py-4 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold transition-all hover:scale-105 active:scale-95"
-        >
+        <button onClick={handleNext} className="flex items-center gap-2 px-8 py-4 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold transition-all hover:scale-105 active:scale-95">
           <RefreshCw size={24} />
           Skip Problem
         </button>
