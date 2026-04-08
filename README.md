@@ -47,4 +47,4 @@ The core of Mathly is **Computational Repetition**. To get faster at math, you n
 
 ---
 
-Built with ❤️ for speed learners.
+2026 zafrem - Computational Repetition Done Right

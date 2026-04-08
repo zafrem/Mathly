@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, RefreshCw } from 'lucide-react';
 import { Problem, generateProblem, OperationType } from '@/lib/math-engine';
@@ -10,7 +10,7 @@ import { mathlyAudio } from '@/lib/audio';
 interface ProblemCardProps {
   type: OperationType;
   digits: number;
-  onSuccess?: () => void;
+  onSuccess?: (timeMs: number) => void;
   onFailure?: () => void;
 }
 
@@ -19,7 +19,12 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
   const [userAnswer, setUserAnswer] = useState<string>('');
   const [carries, setCarries] = useState<string[]>(() => new Array(problem.answer.toString().length).fill(''));
   const [status, setStatus] = useState<'idle' | 'correct' | 'incorrect'>('idle');
+  const [startTime, setStartTime] = useState<number>(0);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setStartTime(performance.now());
+  }, [problem.id]);
 
   const handleNext = () => {
     const p = generateProblem(type, digits);
@@ -36,9 +41,10 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
       setUserAnswer(value);
       
       if (problem && parseInt(value) === problem.answer) {
+        const endTime = performance.now();
         setStatus('correct');
         mathlyAudio?.playSuccess();
-        onSuccess?.();
+        onSuccess?.(endTime - startTime);
         setTimeout(handleNext, 1000);
       } else if (problem && value.length >= problem.answer.toString().length) {
         setStatus('incorrect');
