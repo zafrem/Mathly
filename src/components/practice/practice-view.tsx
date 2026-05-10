@@ -40,7 +40,7 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
   const [timeLeft, setTimeLeft] = useState(initialTime);
   const [isFinished, setIsFinished] = useState(false);
   const [countdown, setCountdown] = useState(3);
-  const [isImpacting, setIsImpacting] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   // Ghost Mode: Personal Best
   const personalBest = useMemo(() => {
@@ -105,8 +105,6 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
       ticks: 50
     });
 
-    setIsImpacting(true);
-    setTimeout(() => setIsImpacting(false), 100);
     mathlyAudio?.playScale(streak);
     const isFast = timeMs < 1500;
     const newCombo = isFast ? combo + 1 : 0;
@@ -128,6 +126,8 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
 
   const handleFailure = () => {
     if (isFinished) return;
+    setIsError(true);
+    setTimeout(() => setIsError(false), 400);
     setStreak(0);
     setCombo(0);
     mathlyAudio?.playError();
@@ -151,16 +151,16 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-2 sm:p-4">
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md w-full bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-12 shadow-2xl text-center border border-gray-100">
-          <div className="w-16 h-16 sm:w-24 sm:h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-8"><Trophy className="text-yellow-500" size={32} className="sm:w-12 sm:h-12" /></div>
+          <div className="w-16 h-16 sm:w-24 sm:h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-8"><Trophy className="text-yellow-500 sm:w-12 sm:h-12 w-8 h-8" /></div>
           <h1 className="text-2xl sm:text-4xl font-black text-gray-800 mb-1 sm:mb-2">{t.practice.sprintOver}</h1>
           <p className="text-sm sm:text-base text-gray-500 mb-6 sm:mb-8">{userName}, {t.practice.youScored}</p>
           <div className="text-4xl sm:text-6xl font-black text-blue-500 mb-3 sm:mb-4 tabular-nums">{score.toLocaleString()}</div>
           
           <div className="flex flex-col gap-2 sm:gap-3 mb-6 sm:mb-8">
-            {score > personalBest && personalBest > 0 && <div className="text-orange-500 font-bold flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-base"><Trophy size={14} className="sm:w-4 sm:h-4"/> {t.practice.newPersonalBest}</div>}
+            {score > personalBest && personalBest > 0 && <div className="text-orange-500 font-bold flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-base"><Trophy className="sm:w-4 sm:h-4 w-3.5 h-3.5"/> {t.practice.newPersonalBest}</div>}
             {initialTime > 0 && (
               <div className={cn("font-bold flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-base", beatBot ? "text-green-500" : "text-red-400")}>
-                {beatBot ? <Zap size={14} className="sm:w-4 sm:h-4"/> : <Bot size={14} className="sm:w-4 sm:h-4"/>}
+                {beatBot ? <Zap className="sm:w-4 sm:h-4 w-3.5 h-3.5"/> : <Bot className="sm:w-4 sm:h-4 w-3.5 h-3.5"/>}
                 {beatBot ? t.practice.beatBot : t.practice.lostToBot}
               </div>
             )}
@@ -171,7 +171,7 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
             <div className="bg-gray-50 p-4 sm:p-6 rounded-xl sm:rounded-2xl"><span className="block text-gray-400 text-[10px] sm:text-sm font-bold uppercase mb-0.5 sm:mb-1">{t.practice.maxStreak}</span><span className="text-xl sm:text-3xl font-black text-gray-800">{streak}</span></div>
           </div>
           <div className="flex flex-col gap-3 sm:gap-4">
-            <button onClick={() => window.location.reload()} className="w-full py-3 sm:py-4 bg-blue-500 text-white rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg hover:bg-blue-600 flex items-center justify-center gap-2"><RotateCcw size={18} className="sm:w-5 sm:h-5" /> {t.practice.tryAgain}</button>
+            <button onClick={() => window.location.reload()} className="w-full py-3 sm:py-4 bg-blue-500 text-white rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg hover:bg-blue-600 flex items-center justify-center gap-2"><RotateCcw className="sm:w-5 sm:h-5 w-4.5 h-4.5" /> {t.practice.tryAgain}</button>
             <button onClick={() => router.push(backPath)} className="w-full py-3 sm:py-4 bg-gray-100 text-gray-600 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg hover:bg-gray-200">{t.practice.backToSelection}</button>
           </div>
         </motion.div>
@@ -183,9 +183,9 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
     <motion.div 
       animate={{ 
         backgroundColor: combo > 2 ? categoryColor : '#f9fafb',
-        scale: isImpacting ? [1, 1.01, 1] : 1
+        x: isError ? [0, -10, 10, -5, 5, 0] : 0
       }}
-      transition={{ duration: 0.1 }}
+      transition={{ duration: 0.4 }}
       className="min-h-screen py-6 sm:py-12 px-2 sm:px-4 relative overflow-hidden"
     >
       {/* Competitive Race Track */}
@@ -200,7 +200,7 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
               />
               <div className="absolute inset-y-0 left-0 w-full flex items-center px-2 pointer-events-none">
                 <div className="flex items-center gap-1 sm:gap-2">
-                  <Ghost size={10} className="text-blue-600 sm:w-3.5 sm:h-3.5" fill="currentColor" />
+                  <Ghost className="text-blue-600 sm:w-3.5 sm:h-3.5 w-2.5 h-2.5" fill="currentColor" />
                   <span className="text-[8px] sm:text-[10px] font-black text-blue-700 uppercase tracking-tighter sm:tracking-widest">{t.practice.ghostPace}</span>
                 </div>
               </div>
@@ -216,7 +216,7 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
               />
               <div className="absolute inset-y-0 left-0 w-full flex items-center px-2 pointer-events-none">
                 <div className="flex items-center gap-1 sm:gap-2">
-                  <Bot size={10} className="text-red-700 sm:w-3.5 sm:h-3.5" fill="currentColor" />
+                  <Bot className="text-red-700 sm:w-3.5 sm:h-3.5 w-2.5 h-2.5" fill="currentColor" />
                   <span className="text-[8px] sm:text-[10px] font-black text-red-800 uppercase tracking-tighter sm:tracking-widest">{t.practice.rivalBot}</span>
                 </div>
               </div>
@@ -227,21 +227,21 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
 
       <div className="max-w-4xl mx-auto relative mt-10 sm:mt-12">
         <header className="flex items-center justify-between mb-8 sm:mb-12">
-          <button onClick={() => router.push(backPath)} className="p-2 sm:p-3 rounded-full bg-white shadow-sm border border-gray-100 text-gray-600 hover:bg-gray-50"><ArrowLeft size={20} className="sm:w-6 sm:h-6" /></button>
+          <button onClick={() => router.push(backPath)} className="p-2 sm:p-3 rounded-full bg-white shadow-sm border border-gray-100 text-gray-600 hover:bg-gray-50"><ArrowLeft className="sm:w-6 sm:h-6 w-5 h-5" /></button>
           <div className="flex gap-2 sm:gap-4">
             {initialTime > 0 && countdown === 0 && (
               <div className={cn("flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full bg-white shadow-sm border border-gray-100", timeLeft < 10 ? "text-red-500 animate-pulse border-red-100" : "text-gray-700")}>
-                <Timer size={16} className="sm:w-5 sm:h-5" /><span className="font-bold text-sm sm:text-base">{formatTime(timeLeft)}</span>
+                <Timer className="sm:w-5 sm:h-5 w-4 h-4" /><span className="font-bold text-sm sm:text-base">{formatTime(timeLeft)}</span>
               </div>
             )}
             {countdown === 0 && (
               <>
                 <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full bg-white shadow-sm border border-gray-100 relative overflow-hidden">
-                  {combo > 1 && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-1 text-orange-500 font-black text-xs sm:text-base"><Flame size={14} className="sm:w-4.5 sm:h-4.5" fill="currentColor" /> x{1 + (combo * 0.5)}</motion.div>}
+                  {combo > 1 && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-1 text-orange-500 font-black text-xs sm:text-base"><Flame className="sm:w-4.5 sm:h-4.5 w-3.5 h-3.5" fill="currentColor" /> x{1 + (combo * 0.5)}</motion.div>}
                   <span className="font-black text-blue-500 tabular-nums text-sm sm:text-base">{score.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full bg-white shadow-sm border border-gray-100">
-                  <Zap className="text-yellow-500" size={16} className="sm:w-5 sm:h-5" /><span className="font-bold text-gray-700 text-sm sm:text-base">{streak}</span>
+                  <Zap className="text-yellow-500 sm:w-5 sm:h-5 w-4 h-4" /><span className="font-bold text-gray-700 text-sm sm:text-base">{streak}</span>
                 </div>
               </>
             )}

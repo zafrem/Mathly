@@ -123,7 +123,7 @@ export default function LauncherPage() {
           </motion.h1>
           
           <div className="max-w-md mx-auto mb-4 relative group px-2 sm:px-0">
-            <User className={cn("absolute left-6 sm:left-4 top-1/2 -translate-y-1/2 transition-colors", isActive ? "text-blue-500" : "text-gray-400")} size={20} className="sm:w-6 sm:h-6" />
+            <User className={cn("absolute left-6 sm:left-4 top-1/2 -translate-y-1/2 transition-colors sm:w-6 sm:h-6 w-5 h-5", isActive ? "text-blue-500" : "text-gray-400")} />
             <input 
               type="text" 
               placeholder={t.launcher.placeholder} 
@@ -151,7 +151,7 @@ export default function LauncherPage() {
                 <Link href={!isLocked ? `/level/${level.id}` : '#'} className={cn("block h-full p-6 sm:p-8 rounded-2xl sm:rounded-[2rem] border-2 transition-all relative overflow-hidden group", isLocked ? "bg-gray-50 border-transparent cursor-not-allowed opacity-75" : "bg-white border-gray-100 hover:border-blue-200 hover:shadow-xl")}>
                   <div className="flex justify-between items-start mb-4 sm:mb-6">
                     <div className={cn("w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center text-white transition-transform duration-500", isLocked ? "bg-gray-300" : level.color + " group-hover:rotate-12")}>
-                      <Icon size={24} className="sm:w-8 sm:h-8" />
+                      <Icon className="sm:w-8 sm:h-8 w-6 h-6" />
                     </div>
                     {!isLocked && (
                       <div className="flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full bg-blue-50 text-blue-600 font-black text-[8px] sm:text-[10px] uppercase tracking-wider">
@@ -171,7 +171,7 @@ export default function LauncherPage() {
                   )}
                   {!isLocked && (
                     <div className="absolute -bottom-10 -right-10 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
-                      <Icon size={120} className="sm:w-[150px] sm:h-[150px]" />
+                      <Icon className="sm:w-[150px] sm:h-[150px] w-[120px] h-[120px]" />
                     </div>
                   )}
                 </Link>
@@ -181,10 +181,10 @@ export default function LauncherPage() {
         </div>
 
         <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto bg-gray-900 rounded-3xl sm:rounded-[3rem] p-6 sm:p-12 text-white shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 sm:p-8 opacity-10"><Trophy size={100} className="sm:w-[160px] sm:h-[160px]" /></div>
+          <div className="absolute top-0 right-0 p-4 sm:p-8 opacity-10"><Trophy className="sm:w-[160px] sm:h-[160px] w-[100px] h-[100px]" /></div>
           <div className="relative z-10">
             <h2 className="text-2xl sm:text-4xl font-black mb-6 sm:mb-10 flex items-center gap-3 sm:gap-4">
-              <Trophy className="text-yellow-400" size={24} className="sm:w-10 sm:h-10" /> 
+              <Trophy className="text-yellow-400 sm:w-10 sm:h-10 w-6 h-6" /> 
               {t.launcher.topTrainees}
             </h2>
             <div className="space-y-3 sm:space-y-4">
@@ -207,7 +207,7 @@ export default function LauncherPage() {
               )) : (
                 <div className="text-center py-6 sm:py-10">
                   <p className="text-gray-500 font-bold uppercase tracking-[0.2em] mb-4 text-xs sm:text-sm">{t.launcher.noRankings}</p>
-                  <Rocket className="mx-auto text-gray-800 animate-bounce" size={32} className="sm:w-12 sm:h-12" />
+                  <Rocket className="mx-auto text-gray-800 animate-bounce sm:w-12 sm:h-12 w-8 h-8" />
                 </div>
               )}
             </div>

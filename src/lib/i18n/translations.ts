@@ -100,6 +100,14 @@ export const translations = {
       exponent_basic: "Calculate the power",
       square_root: "Find the square root"
     },
+    help: {
+      title: "How it works",
+      close: "Close",
+      ghostTitle: "Ghost Pace",
+      ghostDesc: "Racing your past self! This blue bar represents your Personal Best for the current level. Break it to set a new record.",
+      botTitle: "Rival Bot",
+      botDesc: "Racing the computer! This red bar moves at a steady speed. Don't let it overtake you!"
+    },
     practice: {
       getReady: "Get Ready",
       ghostPace: "Ghost Pace",
@@ -214,6 +222,14 @@ export const translations = {
       equation_simple: "x 구하기",
       exponent_basic: "거듭제곱 계산",
       square_root: "제곱근 구하기"
+    },
+    help: {
+      title: "기능 설명",
+      close: "닫기",
+      ghostTitle: "고스트 페이스 (Ghost Pace)",
+      ghostDesc: "과거의 나와 경쟁하세요! 파란색 바는 현재 레벨에서의 내 최고 기록(Personal Best)을 나타냅니다. 바보다 앞서나가 새로운 기록을 세워보세요.",
+      botTitle: "라이벌 봇 (Rival Bot)",
+      botDesc: "컴퓨터와 경쟁하세요! 빨간색 바는 일정한 속도로 움직입니다. 봇에게 추월당하지 않도록 빠르게 문제를 해결하세요!"
     },
     practice: {
       getReady: "준비하세요",
