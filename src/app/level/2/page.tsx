@@ -23,23 +23,24 @@ export default function Level2Page() {
     if (!saved) {
       router.push('/');
     } else {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+      /* eslint-disable react-hooks/set-state-in-effect */
       setUserName(saved);
+      /* eslint-enable react-hooks/set-state-in-effect */
     }
   }, [router]);
 
   const col1 = [
-    { id: 'integer_addition', name: 'Integer +', icon: Minus, color: 'bg-blue-600' },
-    { id: 'integer_multiplication', name: 'Integer ×', icon: X, color: 'bg-indigo-600' },
+    { id: 'integer_addition', name: t.operations.integer_addition, icon: Minus, color: 'bg-blue-600' },
+    { id: 'integer_multiplication', name: t.operations.integer_multiplication, icon: X, color: 'bg-indigo-600' },
   ];
 
   const col2 = [
-    { id: 'equation_simple', name: 'Basic Eq (x)', icon: FunctionSquare, color: 'bg-emerald-600' },
+    { id: 'equation_simple', name: t.operations.equation_simple, icon: FunctionSquare, color: 'bg-emerald-600' },
   ];
 
   const col3 = [
-    { id: 'exponent_basic', name: 'Exponents', icon: Hash, color: 'bg-rose-600' },
-    { id: 'square_root', name: 'Square Root', icon: Calculator, color: 'bg-purple-600' },
+    { id: 'exponent_basic', name: t.operations.exponent_basic, icon: Hash, color: 'bg-rose-600' },
+    { id: 'square_root', name: t.operations.square_root, icon: Calculator, color: 'bg-purple-600' },
   ];
 
   const renderCategory = (cat: { id: string; name: string; icon: React.ElementType; color: string }) => (
@@ -57,35 +58,35 @@ export default function Level2Page() {
   );
 
   return (
-    <div className="min-h-screen bg-white pb-20 font-sans">
-      <div className="max-w-6xl mx-auto px-4 py-12 relative">
-        <header className="mb-16">
-          <button onClick={() => router.push('/')} className="flex items-center gap-2 text-gray-400 hover:text-blue-500 font-bold transition-colors mb-8 group">
-            <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+    <div className="min-h-screen bg-white pb-10 sm:pb-20 font-sans">
+      <div className="max-w-6xl mx-auto px-4 py-8 sm:py-12 relative">
+        <header className="mb-10 sm:mb-16">
+          <button onClick={() => router.push('/')} className="flex items-center gap-2 text-gray-400 hover:text-blue-500 font-bold transition-colors mb-6 sm:mb-8 group text-sm sm:text-base">
+            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform sm:w-5 sm:h-5" />
             {t.selection.back}
           </button>
           
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 sm:gap-8">
             <div>
-              <span className="text-indigo-500 font-black uppercase tracking-[0.3em] text-sm">Level 2</span>
-              <h1 className="text-5xl font-black text-gray-900 mt-2">{t.levels.l2.title.split(': ')[1]} <span className="text-gray-300">{t.selection.training}</span></h1>
-              <p className="text-gray-500 mt-4 text-lg font-medium">{t.levels.l2.description}</p>
+              <span className="text-indigo-500 font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-xs sm:text-sm">Level 2</span>
+              <h1 className="text-3xl sm:text-5xl font-black text-gray-900 mt-1 sm:mt-2">{t.levels.l2.title.split(': ')[1]} <span className="text-gray-300">{t.selection.training}</span></h1>
+              <p className="text-gray-500 mt-3 sm:mt-4 text-sm sm:text-lg font-medium max-w-2xl">{t.levels.l2.description}</p>
             </div>
 
-            <div className="flex flex-wrap gap-6">
-              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+            <div className="flex flex-wrap gap-4 sm:gap-6">
+              <div className="bg-gray-50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100 flex-1 sm:flex-none">
                 <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{t.selection.complexity}</span>
                 <div className="flex gap-1">
                   {[1, 2, 3].map((d) => (
-                    <button key={d} onClick={() => setDigits(d)} className={cn("w-10 h-10 rounded-lg font-bold text-sm transition-all", digits === d ? "bg-indigo-500 text-white shadow-md" : "bg-white text-gray-400 hover:bg-gray-100")}>{d}</button>
+                    <button key={d} onClick={() => setDigits(d)} className={cn("w-9 h-9 sm:w-10 sm:h-10 rounded-lg font-bold text-xs sm:text-sm transition-all", digits === d ? "bg-indigo-500 text-white shadow-md" : "bg-white text-gray-400 hover:bg-gray-100")}>{d}</button>
                   ))}
                 </div>
               </div>
-              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+              <div className="bg-gray-50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100 flex-1 sm:flex-none">
                 <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{t.selection.timer}</span>
                 <div className="flex gap-1">
                   {[30, 60, 120, 0].map((tVal) => (
-                    <button key={tVal} onClick={() => setTimeLimit(tVal)} className={cn("px-3 h-10 rounded-lg font-bold text-sm transition-all", timeLimit === tVal ? "bg-purple-500 text-white shadow-md" : "bg-white text-gray-400 hover:bg-gray-100")}>{tVal === 0 ? '∞' : `${tVal}s`}</button>
+                    <button key={tVal} onClick={() => setTimeLimit(tVal)} className={cn("px-2.5 sm:px-3 h-9 sm:h-10 rounded-lg font-bold text-xs sm:text-sm transition-all", timeLimit === tVal ? "bg-purple-500 text-white shadow-md" : "bg-white text-gray-400 hover:bg-gray-100")}>{tVal === 0 ? '∞' : `${tVal}s`}</button>
                   ))}
                 </div>
               </div>
@@ -93,22 +94,22 @@ export default function Level2Page() {
           </div>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
           <div>
-            <h2 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2 px-2">
-              <div className="w-2 h-2 rounded-full bg-blue-600" /> Integers (±)
+            <h2 className="text-xs sm:text-sm font-black text-gray-400 uppercase tracking-widest mb-4 sm:mb-6 flex items-center gap-2 px-2">
+              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-blue-600" /> {t.selection.catIntegers}
             </h2>
             {col1.map(renderCategory)}
           </div>
           <div>
-            <h2 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2 px-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-600" /> Basic Algebra
+            <h2 className="text-xs sm:text-sm font-black text-gray-400 uppercase tracking-widest mb-4 sm:mb-6 flex items-center gap-2 px-2">
+              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-600" /> {t.selection.catAlgebra}
             </h2>
             {col2.map(renderCategory)}
           </div>
           <div>
-            <h2 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2 px-2">
-              <div className="w-2 h-2 rounded-full bg-rose-600" /> Powers & Roots
+            <h2 className="text-xs sm:text-sm font-black text-gray-400 uppercase tracking-widest mb-4 sm:mb-6 flex items-center gap-2 px-2">
+              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-rose-600" /> {t.selection.catPowers}
             </h2>
             {col3.map(renderCategory)}
           </div>

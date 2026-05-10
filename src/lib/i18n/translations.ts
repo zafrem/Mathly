@@ -58,7 +58,47 @@ export const translations = {
       training: "Training",
       complexity: "Complexity",
       digits: "Digits",
-      timer: "Timer"
+      timer: "Timer",
+      catArithmetic: "Arithmetic",
+      catLogic: "Logic & Number",
+      catFractions: "Fractions",
+      catIntegers: "Integers (±)",
+      catAlgebra: "Basic Algebra",
+      catPowers: "Powers & Roots"
+    },
+    operations: {
+      addition: "Addition",
+      subtraction: "Subtraction",
+      multiplication: "Multiplication",
+      division: "Division",
+      gcd: "GCD",
+      lcm: "LCM",
+      fraction_addition: "Frac +",
+      fraction_subtraction: "Frac -",
+      fraction_multiplication: "Frac ×",
+      fraction_division: "Frac ÷",
+      integer_addition: "Integer +",
+      integer_multiplication: "Integer ×",
+      equation_simple: "Basic Eq (x)",
+      exponent_basic: "Exponents",
+      square_root: "Square Root"
+    },
+    practiceInstructions: {
+      addition: "Add",
+      subtraction: "Subtract",
+      multiplication: "Multiply",
+      division: "Divide",
+      gcd: "Find the greatest common divisor",
+      lcm: "Find the least common multiple",
+      fraction_addition: "Add the fractions",
+      fraction_subtraction: "Subtract the fractions",
+      fraction_multiplication: "Multiply the fractions",
+      fraction_division: "Divide the fractions",
+      integer_addition: "Add the integers",
+      integer_multiplication: "Multiply the integers",
+      equation_simple: "Solve for x",
+      exponent_basic: "Calculate the power",
+      square_root: "Find the square root"
     },
     practice: {
       getReady: "Get Ready",
@@ -73,7 +113,9 @@ export const translations = {
       maxStreak: "Max Streak",
       tryAgain: "Try Again",
       backToSelection: "Back to Selection",
-      skip: "Skip Problem"
+      skip: "Skip Problem",
+      numPlaceholder: "Num",
+      denPlaceholder: "Den"
     }
   },
   ko: {
@@ -131,7 +173,47 @@ export const translations = {
       training: "트레이닝",
       complexity: "난이도",
       digits: "자릿수",
-      timer: "타이머"
+      timer: "타이머",
+      catArithmetic: "기초 연산",
+      catLogic: "논리 및 수",
+      catFractions: "분수 연산",
+      catIntegers: "정수 연산 (±)",
+      catAlgebra: "기초 대수",
+      catPowers: "거듭제곱 및 제곱근"
+    },
+    operations: {
+      addition: "덧셈",
+      subtraction: "뺄셈",
+      multiplication: "곱셈",
+      division: "나눗셈",
+      gcd: "최대공약수",
+      lcm: "최소공배수",
+      fraction_addition: "분수 덧셈",
+      fraction_subtraction: "분수 뺄셈",
+      fraction_multiplication: "분수 곱셈",
+      fraction_division: "분수 나눗셈",
+      integer_addition: "정수 덧셈",
+      integer_multiplication: "정수 곱셈",
+      equation_simple: "기초 방정식 (x)",
+      exponent_basic: "거듭제곱",
+      square_root: "제곱근"
+    },
+    practiceInstructions: {
+      addition: "더하기",
+      subtraction: "빼기",
+      multiplication: "곱하기",
+      division: "나누기",
+      gcd: "최대공약수 구하기",
+      lcm: "최소공배수 구하기",
+      fraction_addition: "분수 더하기",
+      fraction_subtraction: "분수 빼기",
+      fraction_multiplication: "분수 곱하기",
+      fraction_division: "분수 나누기",
+      integer_addition: "정수 더하기",
+      integer_multiplication: "정수 곱하기",
+      equation_simple: "x 구하기",
+      exponent_basic: "거듭제곱 계산",
+      square_root: "제곱근 구하기"
     },
     practice: {
       getReady: "준비하세요",
@@ -146,7 +228,9 @@ export const translations = {
       maxStreak: "최대 스트릭",
       tryAgain: "다시 도전",
       backToSelection: "메뉴로 돌아가기",
-      skip: "문제 건너뛰기"
+      skip: "문제 건너뛰기",
+      numPlaceholder: "분자",
+      denPlaceholder: "분모"
     }
   }
 };
