@@ -10,10 +10,18 @@ import {
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n/language-context';
 
+interface ScoreEntry {
+  name: string;
+  score: number;
+  type: string;
+  digits: number;
+  date: string;
+}
+
 export default function LauncherPage() {
   const { t } = useLanguage();
   const [userName, setUserName] = useState('');
-  const [scores, setScores] = useState<any[]>([]);
+  const [scores, setScores] = useState<ScoreEntry[]>([]);
   const [isMounted, setIsMounted] = useState(false);
 
   const levels = [
@@ -80,12 +88,15 @@ export default function LauncherPage() {
   ];
 
   useEffect(() => {
-    setIsMounted(true);
     const savedName = localStorage.getItem('mathly-user') || '';
-    setUserName(savedName);
+    const savedScoresData = localStorage.getItem('mathly-scores');
+    const savedScores: ScoreEntry[] = savedScoresData ? JSON.parse(savedScoresData) : [];
     
-    const savedScores = JSON.parse(localStorage.getItem('mathly-scores') || '[]');
-    setScores(savedScores.sort((a: any, b: any) => b.score - a.score).slice(0, 5));
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setUserName(savedName);
+    setScores(savedScores.sort((a, b) => b.score - a.score).slice(0, 5));
+    setIsMounted(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   const handleNameChange = (name: string) => {
@@ -177,7 +188,7 @@ export default function LauncherPage() {
               {t.launcher.topTrainees}
             </h2>
             <div className="space-y-4">
-              {scores.length > 0 ? scores.map((s, i) => (
+              {scores.length > 0 ? scores.map((s: ScoreEntry, i: number) => (
                 <div key={i} className="flex items-center justify-between p-5 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
                   <div className="flex items-center gap-6">
                     <span className={cn("w-10 h-10 rounded-full flex items-center justify-center font-black text-lg", i === 0 ? "bg-yellow-400 text-black" : "bg-white/10")}>{i + 1}</span>

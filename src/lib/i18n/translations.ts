@@ -1,5 +1,7 @@
 export type Language = 'en' | 'ko';
 
+export type TranslationType = typeof translations.en;
+
 export const translations = {
   en: {
     launcher: {

@@ -1,12 +1,12 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Language, translations } from './translations';
+import { Language, translations, TranslationType } from './translations';
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: any;
+  t: TranslationType;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -17,7 +17,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const saved = localStorage.getItem('mathly-lang') as Language;
     if (saved && (saved === 'en' || saved === 'ko')) {
-      setLanguageState(saved);
+      if (saved !== 'en') {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setLanguageState(saved);
+      }
     }
   }, []);
 

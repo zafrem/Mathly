@@ -16,13 +16,12 @@ export default function Level1Page() {
   const [userName, setUserName] = useState('');
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('mathly-user');
-      if (!saved) {
-        router.push('/');
-      } else {
-        setUserName(saved);
-      }
+    const saved = localStorage.getItem('mathly-user');
+    if (!saved) {
+      router.push('/');
+    } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setUserName(saved);
     }
   }, [router]);
 
@@ -45,7 +44,7 @@ export default function Level1Page() {
     { id: 'fraction_division', name: 'Frac ÷', icon: Divide, color: 'bg-emerald-500' },
   ];
 
-  const renderCategory = (cat: any) => (
+  const renderCategory = (cat: { id: string; name: string; icon: React.ElementType; color: string }) => (
     <motion.div key={cat.id} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
       <Link href={`/practice/${cat.id}?level=1&digits=${digits}&time=${timeLimit}&user=${encodeURIComponent(userName)}`} className="group flex items-center justify-between p-4 rounded-2xl transition-all border-2 mb-3 bg-gray-50 hover:bg-white hover:shadow-xl hover:border-blue-200 border-gray-100">
         <div className="flex items-center gap-4">

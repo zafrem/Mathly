@@ -8,6 +8,7 @@ import ProblemCard from '@/components/practice/problem-card';
 import { cn } from '@/lib/utils';
 import { mathlyAudio } from '@/lib/audio';
 import { useLanguage } from '@/lib/i18n/language-context';
+import { OperationType } from '@/lib/math-engine';
 import confetti from 'canvas-confetti';
 
 interface ScoreEntry {
@@ -38,17 +39,17 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
   const [botScore, setBotScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(initialTime);
   const [isFinished, setIsFinished] = useState(false);
-  const [showCelebration, setShowCelebration] = useState(false);
   const [countdown, setCountdown] = useState(3);
   const [isImpacting, setIsImpacting] = useState(false);
 
   // Ghost Mode: Personal Best
   const personalBest = useMemo(() => {
     if (typeof window === 'undefined') return 0;
-    const scores: ScoreEntry[] = JSON.parse(localStorage.getItem('mathly-scores') || '[]');
+    const scoresData = localStorage.getItem('mathly-scores');
+    const scores: ScoreEntry[] = scoresData ? JSON.parse(scoresData) : [];
     const relevant = scores.filter(s => s.type === type && s.digits === digits);
     return relevant.length > 0 ? Math.max(...relevant.map(s => s.score)) : 0;
-  }, [type, digits, isFinished]);
+  }, [type, digits]);
 
   // Bot Logic: Rival score increases over time
   useEffect(() => {
@@ -106,13 +107,11 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
     setStreak(s => s + 1);
     setSolved(s => s + 1);
     if ((solved + 1) % 10 === 0) {
-      setShowCelebration(true);
       mathlyAudio?.playMilestone();
       confetti({
         particleCount: 150, spread: 70, origin: { y: 0.6 },
         colors: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
       });
-      setTimeout(() => setShowCelebration(false), 2000);
     }
   };
 
@@ -224,7 +223,7 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
                   <h1 className="text-3xl font-black text-gray-800 capitalize mb-2">{type.replace('_', ' ')}</h1>
                   <p className="text-gray-500">{userName} &bull; {digits} Digits</p>
                 </div>
-                <ProblemCard key={`${type}-${digits}`} type={type as any} digits={digits} onSuccess={handleSuccess} onFailure={handleFailure} />
+                <ProblemCard key={`${type}-${digits}`} type={type as OperationType} digits={digits} onSuccess={handleSuccess} onFailure={handleFailure} />
               </motion.div>
             )}
           </AnimatePresence>

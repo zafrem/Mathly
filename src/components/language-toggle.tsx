@@ -1,7 +1,6 @@
 'use client';
 
 import { useLanguage } from '@/lib/i18n/language-context';
-import { motion } from 'framer-motion';
 import { Languages } from 'lucide-react';
 
 export default function LanguageToggle() {
