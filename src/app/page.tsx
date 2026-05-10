@@ -109,8 +109,8 @@ export default function LauncherPage() {
   return (
     <div className="min-h-screen bg-white overflow-hidden pb-10 sm:pb-20 font-sans">
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
-        <motion.div animate={{ rotate: 360 }} transition={{ duration: 40, repeat: Infinity, ease: "linear" }} className="absolute -top-24 -left-24 text-blue-50/30"><Brain size={300} className="sm:w-[400px] sm:h-[400px]" /></motion.div>
-        <motion.div animate={{ y: [0, -40, 0], opacity: [0.1, 0.3, 0.1] }} transition={{ duration: 8, repeat: Infinity }} className="absolute bottom-1/4 right-12 text-blue-50/50"><Rocket size={150} className="sm:w-[250px] sm:h-[250px]" /></motion.div>
+        <motion.div animate={{ rotate: 360 }} transition={{ duration: 40, repeat: Infinity, ease: "linear" }} className="absolute -top-24 -left-24 text-blue-50/30"><Brain className="sm:w-[400px] sm:h-[400px] w-[300px] h-[300px]" /></motion.div>
+        <motion.div animate={{ y: [0, -40, 0], opacity: [0.1, 0.3, 0.1] }} transition={{ duration: 8, repeat: Infinity }} className="absolute bottom-1/4 right-12 text-blue-50/50"><Rocket className="sm:w-[250px] sm:h-[250px] w-[150px] h-[150px]" /></motion.div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-10 sm:py-20 relative">
@@ -158,7 +158,7 @@ export default function LauncherPage() {
                         {level.type}
                       </div>
                     )}
-                    {isLocked && <Lock className="text-gray-300" size={20} />}
+                    {isLocked && <Lock className="sm:w-5 sm:h-5 w-4 h-4 text-gray-300" />}
                   </div>
                   <h3 className={cn("text-xl sm:text-2xl font-black mb-1 sm:mb-2 transition-colors", isLocked ? "text-gray-400" : "text-gray-900 group-hover:text-blue-500")}>{level.title}</h3>
                   <p className="text-gray-400 text-[10px] sm:text-sm font-bold uppercase tracking-widest mb-3 sm:mb-4">{level.subtitle}</p>
@@ -166,7 +166,7 @@ export default function LauncherPage() {
                   {!isLocked && (
                     <div className="mt-6 sm:mt-8 flex items-center gap-2 text-blue-500 font-bold text-sm sm:text-base group-hover:translate-x-2 transition-transform">
                       <span>{t.launcher.startTraining}</span>
-                      <Rocket size={16} />
+                      <Rocket className="sm:w-4 sm:h-4 w-3.5 h-3.5" />
                     </div>
                   )}
                   {!isLocked && (
@@ -217,7 +217,7 @@ export default function LauncherPage() {
         <footer className="mt-20 sm:mt-40 text-center">
           <p className="text-gray-400 font-medium text-xs sm:text-base">© 2026 Mathly - {t.launcher.footer}</p>
           <div className="flex justify-center gap-4 sm:gap-6 mt-6 opacity-30">
-            <Zap size={16} /> <Brain size={16} /> <Rocket size={16} /> <Sparkles size={16} />
+            <Zap className="sm:w-5 sm:h-5 w-4 h-4" /> <Brain className="sm:w-5 sm:h-5 w-4 h-4" /> <Rocket className="sm:w-5 sm:h-5 w-4 h-4" /> <Sparkles className="sm:w-5 sm:h-5 w-4 h-4" />
           </div>
         </footer>
       </div>

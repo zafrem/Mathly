@@ -183,92 +183,95 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
     <motion.div 
       animate={{ 
         backgroundColor: combo > 2 ? categoryColor : '#f9fafb',
-        x: isError ? [0, -10, 10, -5, 5, 0] : 0
       }}
-      transition={{ duration: 0.4 }}
       className="min-h-screen py-6 sm:py-12 px-2 sm:px-4 relative overflow-hidden"
     >
-      {/* Competitive Race Track */}
-      <div className="fixed top-0 left-0 w-full z-50 bg-white/50 backdrop-blur-sm border-b border-gray-100 py-1 sm:py-2">
-        <div className="max-w-4xl mx-auto px-4 space-y-1.5 sm:space-y-3">
-          {/* Ghost PB Bar */}
-          {personalBest > 0 && (
-            <div className="relative h-2 sm:h-3 bg-gray-100 rounded-full overflow-hidden">
-              <motion.div 
-                className="absolute inset-y-0 left-0 bg-blue-500 rounded-full shadow-[0_0_12px_rgba(59,130,246,0.5)]" 
-                animate={{ width: `${Math.min((score / personalBest) * 100, 100)}%` }} 
-              />
-              <div className="absolute inset-y-0 left-0 w-full flex items-center px-2 pointer-events-none">
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <Ghost className="text-blue-600 sm:w-3.5 sm:h-3.5 w-2.5 h-2.5" fill="currentColor" />
-                  <span className="text-[8px] sm:text-[10px] font-black text-blue-700 uppercase tracking-tighter sm:tracking-widest">{t.practice.ghostPace}</span>
+      <motion.div
+        animate={isError ? { x: [0, -10, 10, -5, 5, 0] } : { x: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        {/* Competitive Race Track */}
+        <div className="fixed top-0 left-0 w-full z-50 bg-white/50 backdrop-blur-sm border-b border-gray-100 py-1 sm:py-2">
+          <div className="max-w-4xl mx-auto px-4 space-y-1.5 sm:space-y-3">
+            {/* Ghost PB Bar */}
+            {personalBest > 0 && (
+              <div className="relative h-2 sm:h-3 bg-gray-100 rounded-full overflow-hidden">
+                <motion.div 
+                  className="absolute inset-y-0 left-0 bg-blue-500 rounded-full shadow-[0_0_12px_rgba(59,130,246,0.5)]" 
+                  animate={{ width: `${Math.min((score / personalBest) * 100, 100)}%` }} 
+                />
+                <div className="absolute inset-y-0 left-0 w-full flex items-center px-2 pointer-events-none">
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <Ghost className="text-blue-600 sm:w-3.5 sm:h-3.5 w-2.5 h-2.5" fill="currentColor" />
+                    <span className="text-[8px] sm:text-[10px] font-black text-blue-700 uppercase tracking-tighter sm:tracking-widest">{t.practice.ghostPace}</span>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
-          
-          {/* Rival Bot Bar */}
-          {initialTime > 0 && (
-            <div className="relative h-2 sm:h-3 bg-gray-100 rounded-full overflow-hidden">
-              <motion.div 
-                className="absolute inset-y-0 left-0 bg-red-400 rounded-full shadow-[0_0_12px_rgba(248,113,113,0.5)]" 
-                animate={{ width: `${Math.min((botScore / Math.max(score, personalBest, botScore, 1000)) * 100, 100)}%` }} 
-              />
-              <div className="absolute inset-y-0 left-0 w-full flex items-center px-2 pointer-events-none">
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <Bot className="text-red-700 sm:w-3.5 sm:h-3.5 w-2.5 h-2.5" fill="currentColor" />
-                  <span className="text-[8px] sm:text-[10px] font-black text-red-800 uppercase tracking-tighter sm:tracking-widest">{t.practice.rivalBot}</span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto relative mt-10 sm:mt-12">
-        <header className="flex items-center justify-between mb-8 sm:mb-12">
-          <button onClick={() => router.push(backPath)} className="p-2 sm:p-3 rounded-full bg-white shadow-sm border border-gray-100 text-gray-600 hover:bg-gray-50"><ArrowLeft className="sm:w-6 sm:h-6 w-5 h-5" /></button>
-          <div className="flex gap-2 sm:gap-4">
-            {initialTime > 0 && countdown === 0 && (
-              <div className={cn("flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full bg-white shadow-sm border border-gray-100", timeLeft < 10 ? "text-red-500 animate-pulse border-red-100" : "text-gray-700")}>
-                <Timer className="sm:w-5 sm:h-5 w-4 h-4" /><span className="font-bold text-sm sm:text-base">{formatTime(timeLeft)}</span>
               </div>
             )}
-            {countdown === 0 && (
-              <>
-                <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full bg-white shadow-sm border border-gray-100 relative overflow-hidden">
-                  {combo > 1 && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-1 text-orange-500 font-black text-xs sm:text-base"><Flame className="sm:w-4.5 sm:h-4.5 w-3.5 h-3.5" fill="currentColor" /> x{1 + (combo * 0.5)}</motion.div>}
-                  <span className="font-black text-blue-500 tabular-nums text-sm sm:text-base">{score.toLocaleString()}</span>
+            
+            {/* Rival Bot Bar */}
+            {initialTime > 0 && (
+              <div className="relative h-2 sm:h-3 bg-gray-100 rounded-full overflow-hidden">
+                <motion.div 
+                  className="absolute inset-y-0 left-0 bg-red-400 rounded-full shadow-[0_0_12px_rgba(248,113,113,0.5)]" 
+                  animate={{ width: `${Math.min((botScore / Math.max(score, personalBest, botScore, 1000)) * 100, 100)}%` }} 
+                />
+                <div className="absolute inset-y-0 left-0 w-full flex items-center px-2 pointer-events-none">
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <Bot className="text-red-700 sm:w-3.5 sm:h-3.5 w-2.5 h-2.5" fill="currentColor" />
+                    <span className="text-[8px] sm:text-[10px] font-black text-red-800 uppercase tracking-tighter sm:tracking-widest">{t.practice.rivalBot}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full bg-white shadow-sm border border-gray-100">
-                  <Zap className="text-yellow-500 sm:w-5 sm:h-5 w-4 h-4" /><span className="font-bold text-gray-700 text-sm sm:text-base">{streak}</span>
-                </div>
-              </>
+              </div>
             )}
           </div>
-        </header>
+        </div>
 
-        <main className="relative">
-          <AnimatePresence mode="wait">
-            {countdown > 0 ? (
-              <motion.div key="countdown" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 2 }} className="absolute inset-0 flex flex-col items-center justify-center z-50 py-10 sm:py-20">
-                <motion.div key={countdown} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-[8rem] sm:text-[12rem] font-black text-blue-500 drop-shadow-2xl leading-none">{countdown}</motion.div>
-                <p className="text-lg sm:text-2xl font-bold text-gray-400 uppercase tracking-[0.3em] sm:tracking-[0.5em] mt-4">{t.practice.getReady}</p>
-              </motion.div>
-            ) : (
-              <motion.div key="practice-content">
-                <div className="text-center mb-8 sm:mb-12 px-4">
-                  <h1 className="text-2xl sm:text-3xl font-black text-gray-800 capitalize mb-1 sm:mb-2 leading-tight">
-                    {t.practiceInstructions[type as keyof typeof t.practiceInstructions] || type.replace('_', ' ')}
-                  </h1>
-                  <p className="text-gray-500 text-sm sm:text-base">{userName} &bull; {digits} {t.selection.digits}</p>
+        <div className="max-w-4xl mx-auto relative mt-10 sm:mt-12">
+          <header className="flex items-center justify-between mb-8 sm:mb-12">
+            <button onClick={() => router.push(backPath)} className="p-2 sm:p-3 rounded-full bg-white shadow-sm border border-gray-100 text-gray-600 hover:bg-gray-50"><ArrowLeft className="sm:w-6 sm:h-6 w-5 h-5" /></button>
+            <div className="flex gap-2 sm:gap-4">
+              {initialTime > 0 && countdown === 0 && (
+                <div className={cn("flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full bg-white shadow-sm border border-gray-100", timeLeft < 10 ? "text-red-500 animate-pulse border-red-100" : "text-gray-700")}>
+                  <Timer className="sm:w-5 sm:h-5 w-4 h-4" /><span className="font-bold text-sm sm:text-base">{formatTime(timeLeft)}</span>
                 </div>
-                <ProblemCard key={`${type}-${digits}`} type={type as OperationType} digits={digits} onSuccess={handleSuccess} onFailure={handleFailure} />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </main>
-      </div>
+              )}
+              {countdown === 0 && (
+                <>
+                  <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full bg-white shadow-sm border border-gray-100 relative overflow-hidden">
+                    {combo > 1 && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-1 text-orange-500 font-black text-xs sm:text-base"><Flame className="sm:w-4.5 sm:h-4.5 w-3.5 h-3.5" fill="currentColor" /> x{1 + (combo * 0.5)}</motion.div>}
+                    <span className="font-black text-blue-500 tabular-nums text-sm sm:text-base">{score.toLocaleString()}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full bg-white shadow-sm border border-gray-100">
+                    <Zap className="text-yellow-500 sm:w-5 sm:h-5 w-4 h-4" /><span className="font-bold text-gray-700 text-sm sm:text-base">{streak}</span>
+                  </div>
+                </>
+              )}
+            </div>
+          </header>
+
+          <main className="relative">
+            <AnimatePresence mode="wait">
+              {countdown > 0 ? (
+                <motion.div key="countdown" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 2 }} className="absolute inset-0 flex flex-col items-center justify-center z-50 py-10 sm:py-20">
+                  <motion.div key={countdown} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-[8rem] sm:text-[12rem] font-black text-blue-500 drop-shadow-2xl leading-none">{countdown}</motion.div>
+                  <p className="text-lg sm:text-2xl font-bold text-gray-400 uppercase tracking-[0.3em] sm:tracking-[0.5em] mt-4">{t.practice.getReady}</p>
+                </motion.div>
+              ) : (
+                <motion.div key="practice-content">
+                  <div className="text-center mb-8 sm:mb-12 px-4">
+                    <h1 className="text-2xl sm:text-3xl font-black text-gray-800 capitalize mb-1 sm:mb-2 leading-tight">
+                      {t.practiceInstructions[type as keyof typeof t.practiceInstructions] || type.replace('_', ' ')}
+                    </h1>
+                    <p className="text-gray-500 text-sm sm:text-base">{userName} &bull; {digits} {t.selection.digits}</p>
+                  </div>
+                  <ProblemCard key={`${type}-${digits}`} type={type as OperationType} digits={digits} onSuccess={handleSuccess} onFailure={handleFailure} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </main>
+        </div>
+      </motion.div>
     </motion.div>
   );
 }
