@@ -6,6 +6,7 @@ import { Check, X, RefreshCw } from 'lucide-react';
 import { Problem, generateProblem, OperationType } from '@/lib/math-engine';
 import { cn } from '@/lib/utils';
 import { mathlyAudio } from '@/lib/audio';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface ProblemCardProps {
   type: OperationType;
@@ -15,6 +16,7 @@ interface ProblemCardProps {
 }
 
 export default function ProblemCard({ type, digits, onSuccess, onFailure }: ProblemCardProps) {
+  const { t } = useLanguage();
   const [problem, setProblem] = useState<Problem>(() => generateProblem(type, digits));
   const [userAnswer, setUserAnswer] = useState<string>('');
   const [userDenom, setUserDenom] = useState<string>('');
@@ -70,7 +72,7 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    if (/^\d*$/.test(value)) {
+    if (/^-?\d*$/.test(value)) {
       setUserAnswer(value);
       handleCheck(value, userDenom);
     }
@@ -78,7 +80,7 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
 
   const handleDenomChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    if (/^\d*$/.test(value)) {
+    if (/^-?\d*$/.test(value)) {
       setUserDenom(value);
       handleCheck(userAnswer, value);
     }
@@ -97,6 +99,10 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
   const isVertical = digits >= 2 && (type === 'addition' || type === 'subtraction');
   const isFactorization = type === 'gcd' || type === 'lcm';
   const isFraction = type.startsWith('fraction_');
+  const isExponent = type === 'exponent_basic';
+  const isSquareRoot = type === 'square_root';
+  const isEquation = !!problem.equationVar;
+  
   const maxLen = Math.max(problem.num1.toString().length, problem.num2.toString().length);
   const num1Str = problem.num1.toString().padStart(maxLen, ' ');
   const num2Str = problem.num2.toString().padStart(maxLen, ' ');
@@ -118,9 +124,9 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
             <span className="text-gray-300">=</span>
           </div>
           <div className="flex flex-col items-center gap-4">
-            <input ref={inputRef} type="text" value={userAnswer} onChange={handleInputChange} autoFocus className={cn("w-32 text-4xl font-black text-center p-4 rounded-xl border-4 outline-none transition-all", status === 'idle' ? "bg-gray-50 border-gray-100 focus:border-blue-400 text-gray-900" : status === 'correct' ? "bg-green-50 border-green-400 text-green-600" : "bg-red-50 border-red-400 text-red-600 animate-shake")} placeholder="Num" />
+            <input ref={inputRef} type="text" value={userAnswer} onChange={handleInputChange} autoFocus className={cn("w-32 text-4xl font-black text-center p-4 rounded-xl border-4 outline-none transition-all", status === 'idle' ? "bg-gray-50 border-gray-100 focus:border-blue-400 text-black" : status === 'correct' ? "bg-green-50 border-green-400 text-green-600" : "bg-red-50 border-red-400 text-red-600 animate-shake")} placeholder="Num" />
             <div className="w-full h-1.5 bg-gray-800 rounded-full" />
-            <input type="text" value={userDenom} onChange={handleDenomChange} className={cn("w-32 text-4xl font-black text-center p-4 rounded-xl border-4 outline-none transition-all", status === 'idle' ? "bg-gray-50 border-gray-100 focus:border-blue-400 text-gray-900" : status === 'correct' ? "bg-green-50 border-green-400 text-green-600" : "bg-red-50 border-red-400 text-red-600 animate-shake")} placeholder="Den" />
+            <input type="text" value={userDenom} onChange={handleDenomChange} className={cn("w-32 text-4xl font-black text-center p-4 rounded-xl border-4 outline-none transition-all", status === 'idle' ? "bg-gray-50 border-gray-100 focus:border-blue-400 text-black" : status === 'correct' ? "bg-green-50 border-green-400 text-green-600" : "bg-red-50 border-red-400 text-red-600 animate-shake")} placeholder="Den" />
           </div>
         </div>
       ) : isFactorization ? (
@@ -138,9 +144,31 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
             </div>
           </div>
         </div>
+      ) : isExponent ? (
+        <div className="flex items-center justify-center gap-2 mb-10">
+          <span className="text-7xl font-black text-gray-800">{problem.num1}</span>
+          <span className="text-4xl font-black text-blue-500 mb-8">{problem.num2}</span>
+          <span className="text-4xl font-black text-gray-300 ml-4">=</span>
+        </div>
+      ) : isSquareRoot ? (
+        <div className="flex items-center justify-center gap-4 mb-10">
+          <div className="flex items-start text-7xl font-black text-gray-800">
+            <span className="text-blue-500 font-serif">√</span>
+            <span className="border-t-8 border-gray-800 mt-2 px-4">{problem.num1}</span>
+          </div>
+          <span className="text-4xl font-black text-gray-300">=</span>
+        </div>
+      ) : isEquation ? (
+        <div className="flex items-center justify-center gap-4 text-6xl font-black text-gray-800 mb-10">
+          <span className="text-blue-500">{problem.equationVar}</span>
+          <span className="text-gray-400">{problem.operator}</span>
+          <span>{Math.abs(problem.num2)}</span>
+          <span className="text-gray-300">=</span>
+          <span>{problem.num1}</span>
+        </div>
       ) : isVertical ? (
         <div className="flex flex-col items-end space-y-2 mb-8 font-mono text-6xl font-black text-gray-800 tracking-widest relative">
-          <div className="flex gap-2 mb-2 pr-1">{Array.from({ length: maxLen }).map((_, i) => (<input key={`carry-${i}`} type="text" maxLength={1} value={carries[i] || ''} onChange={(e) => handleCarryChange(i, e.target.value)} className="w-10 h-10 text-xl text-center border-2 border-dashed border-gray-200 rounded-lg text-blue-400 focus:border-blue-300 outline-none transition-colors" placeholder="0" />)).reverse()}</div>
+          <div className="flex gap-2 mb-2 pr-1">{Array.from({ length: maxLen }).map((_, i) => (<input key={`carry-${i}`} type="text" maxLength={1} value={carries[i] || ''} onChange={(e) => handleCarryChange(i, e.target.value)} className="w-10 h-10 text-xl text-center border-2 border-dashed border-gray-200 rounded-lg text-blue-400 focus:border-blue-300 outline-none transition-colors text-black" placeholder="0" />)).reverse()}</div>
           <div className="pr-1">{num1Str}</div>
           <div className="relative pr-1"><span className="absolute -left-16 text-blue-500 font-sans">{problem.operator}</span>{num2Str}</div>
           <div className="w-full h-2 bg-gray-200 rounded-full mt-4" />
@@ -155,7 +183,7 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
 
       {!isFraction && (
         <div className="relative">
-          <input ref={inputRef} type="text" value={userAnswer} onChange={handleInputChange} autoFocus className={cn("w-full text-6xl font-black text-right p-6 rounded-[1.5rem] border-4 transition-all duration-200 outline-none shadow-inner", status === 'idle' ? "border-gray-100 focus:border-blue-400 bg-gray-50 text-gray-900" : status === 'correct' ? "border-green-400 bg-green-50 text-green-600" : "border-red-400 bg-red-50 text-red-600 animate-shake")} placeholder="?" />
+          <input ref={inputRef} type="text" value={userAnswer} onChange={handleInputChange} autoFocus className={cn("w-full text-6xl font-black text-right p-6 rounded-[1.5rem] border-4 transition-all duration-200 outline-none shadow-inner", status === 'idle' ? "border-gray-100 focus:border-blue-400 bg-gray-50 text-black" : status === 'correct' ? "border-green-400 bg-green-50 text-green-600" : "border-red-400 bg-red-50 text-red-600 animate-shake")} placeholder="?" />
           <div className="absolute left-6 top-1/2 -translate-y-1/2">
             <AnimatePresence>
               {status === 'correct' && (<motion.div initial={{ scale: 0, rotate: -20 }} animate={{ scale: 1, rotate: 0 }} className="text-green-500"><Check size={56} strokeWidth={4} /></motion.div>)}
@@ -166,7 +194,7 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
       )}
 
       <div className="mt-10 flex justify-center">
-        <button onClick={handleNext} className="flex items-center gap-2 px-8 py-4 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold transition-all hover:scale-105 active:scale-95"><RefreshCw size={24} /> Skip Problem</button>
+        <button onClick={handleNext} className="flex items-center gap-2 px-8 py-4 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold transition-all hover:scale-105 active:scale-95"><RefreshCw size={24} /> {t.practice.skip}</button>
       </div>
     </motion.div>
   );

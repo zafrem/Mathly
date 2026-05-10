@@ -1,9 +1,11 @@
 import type { NextConfig } from "next";
 
+const isProd = process.env.NODE_ENV === 'production';
+
 const nextConfig: NextConfig = {
   output: 'export',
-  // Required for GitHub Pages deployment to a sub-path
-  basePath: '/Mathly',
+  // Only use basePath in production (e.g., for GitHub Pages)
+  basePath: isProd ? '/Mathly' : '', 
   images: {
     unoptimized: true,
   },
