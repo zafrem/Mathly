@@ -99,9 +99,11 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
   const isVertical = digits >= 2 && (type === 'addition' || type === 'subtraction');
   const isFactorization = type === 'gcd' || type === 'lcm';
   const isFraction = type.startsWith('fraction_');
-  const isExponent = type === 'exponent_basic';
+  const isExponent = type === 'exponent_basic' || type === 'exp_neural';
   const isSquareRoot = type === 'square_root';
   const isEquation = !!problem.equationVar;
+  const isQuadratic = type === 'quadratic_vertex';
+  const isLog = type === 'log_basic';
   
   const maxLen = Math.max(problem.num1.toString().length, problem.num2.toString().length);
   const num1Str = problem.num1.toString().padStart(maxLen, ' ');
@@ -165,6 +167,22 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
           <span>{Math.abs(problem.num2)}</span>
           <span className="text-gray-300 font-normal">=</span>
           <span>{problem.num1}</span>
+        </div>
+      ) : isQuadratic ? (
+        <div className="flex flex-col items-center justify-center gap-6 mb-8 sm:mb-10">
+          <div className="text-3xl sm:text-5xl font-black text-gray-800 tracking-tight text-center">
+            f(x) = (x {problem.num1 >= 0 ? '-' : '+'} <span className="text-blue-500">?</span>)² + {problem.num2}
+          </div>
+          <p className="text-gray-400 font-bold uppercase text-[10px] sm:text-xs tracking-widest">{t.practiceInstructions.quadratic_vertex}</p>
+        </div>
+      ) : isLog ? (
+        <div className="flex items-center justify-center gap-1 sm:gap-2 mb-8 sm:mb-10">
+          <div className="flex items-end">
+            <span className="text-4xl sm:text-7xl font-black text-gray-800 uppercase">log</span>
+            <span className="text-xl sm:text-3xl font-black text-blue-500 mb-0.5 sm:mb-1 ml-1">{problem.num2}</span>
+          </div>
+          <span className="text-4xl sm:text-7xl font-black text-gray-800 ml-2 sm:ml-4">{problem.num1}</span>
+          <span className="text-2xl sm:text-4xl font-black text-gray-300 ml-2 sm:ml-4">=</span>
         </div>
       ) : isVertical ? (
         <div className="flex flex-col items-end space-y-1 sm:space-y-2 mb-6 sm:mb-8 font-mono text-4xl sm:text-6xl font-black text-gray-800 tracking-widest relative">

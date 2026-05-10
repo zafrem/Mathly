@@ -17,40 +17,52 @@ export const translations = {
     },
     levels: {
       l1: {
-        title: "Level 1: Basic Arithmetic",
-        subtitle: "Speed & Accuracy Training",
-        description: "Master the foundations of arithmetic: addition, subtraction, multiplication, and division.",
+        title: "Level 1: Foundational Arithmetic",
+        subtitle: "Speed & Accuracy",
+        description: "Perfecting the four fundamental operations and number systems.",
         type: "speed"
       },
       l2: {
-        title: "Level 2: Number Systems & Algebra",
-        subtitle: "Advanced Speed Training",
-        description: "Explore integers, rational numbers, and basic algebraic operations.",
+        title: "Level 2: Elementary Algebra",
+        subtitle: "Variables & Equations",
+        description: "Mastering variables (x, y) and solving linear equations.",
         type: "speed"
       },
       l3: {
-        title: "Level 3: Discrete Math",
-        subtitle: "Concept & Logic",
-        description: "Develop logical thinking through sets, propositions, and combinatorics.",
-        type: "concept"
+        title: "Level 3: Optimization Foundations",
+        subtitle: "Functions & Logs",
+        description: "Understanding quadratic functions and logarithms for neural networks.",
+        type: "speed"
       },
       l4: {
-        title: "Level 4: Statistics",
-        subtitle: "Concept & Analysis",
-        description: "Learn the basics of data analysis: mean, variance, and probability.",
+        title: "Level 4: Patterns & Uncertainty",
+        subtitle: "Sequences & Probability",
+        description: "Mastering Sigma (Σ) notation, counting, and basic distributions.",
         type: "concept"
       },
       l5: {
-        title: "Level 5: Linear Algebra",
-        subtitle: "Visualization & Matrix",
-        description: "Understand vectors and matrices through visual intuition and practice.",
+        title: "Level 5: Matrix Foundations",
+        subtitle: "Linear Algebra I",
+        description: "Training the language of data: vectors and matrix multiplication.",
         type: "visual"
       },
       l6: {
-        title: "Level 6: Calculus",
-        subtitle: "Visualization & AI Basics",
-        description: "Master the concepts of derivatives and integrals with visual aids.",
+        title: "Level 6: Structural Analysis",
+        subtitle: "Linear Algebra II",
+        description: "Deep dive into Eigenvalues and SVD for dimensionality reduction.",
         type: "visual"
+      },
+      l7: {
+        title: "Level 7: Gradient Calculus",
+        subtitle: "Differentiation & Learning",
+        description: "Mastering derivatives and the Chain Rule for backpropagation.",
+        type: "visual"
+      },
+      l8: {
+        title: "Level 8: Statistical Inference",
+        subtitle: "Bayes & Optimization",
+        description: "Advanced reasoning with Bayes' Theorem and convex optimization.",
+        type: "concept"
       }
     },
     selection: {
@@ -64,7 +76,9 @@ export const translations = {
       catFractions: "Fractions",
       catIntegers: "Integers (±)",
       catAlgebra: "Basic Algebra",
-      catPowers: "Powers & Roots"
+      catPowers: "Powers & Roots",
+      catFunctions: "Functions & Logs",
+      catOptimization: "Optimization"
     },
     operations: {
       addition: "Addition",
@@ -81,7 +95,10 @@ export const translations = {
       integer_multiplication: "Integer ×",
       equation_simple: "Basic Eq (x)",
       exponent_basic: "Exponents",
-      square_root: "Square Root"
+      square_root: "Square Root",
+      quadratic_vertex: "Quadratic Vertex",
+      log_basic: "Logarithm",
+      exp_neural: "Neural Exponent"
     },
     practiceInstructions: {
       addition: "Add",
@@ -98,7 +115,10 @@ export const translations = {
       integer_multiplication: "Multiply the integers",
       equation_simple: "Solve for x",
       exponent_basic: "Calculate the power",
-      square_root: "Find the square root"
+      square_root: "Find the square root",
+      quadratic_vertex: "Find the vertex x (minimum point)",
+      log_basic: "Calculate the value of the log",
+      exp_neural: "Estimate the activation value"
     },
     help: {
       title: "How it works",
@@ -140,40 +160,52 @@ export const translations = {
     },
     levels: {
       l1: {
-        title: "Level 1: 기초연산",
-        subtitle: "속도 & 정확도 트레이닝",
-        description: "덧셈, 뺄셈, 곱셈, 나눗셈 등 연산의 기초를 다집니다.",
+        title: "Level 1: 기초 연산",
+        subtitle: "속도 & 정확도",
+        description: "사칙연산과 수 체계를 완벽하게 이해하고 숙달합니다.",
         type: "속도"
       },
       l2: {
-        title: "Level 2: 수 체계와 대수",
-        subtitle: "심화 속도 트레이닝",
-        description: "정수, 유리수 및 기초 대수학 연산을 익힙니다.",
+        title: "Level 2: 기초 대수",
+        subtitle: "변수와 방정식",
+        description: "변수(x, y)의 개념을 익히고 일차방정식을 해결합니다.",
         type: "속도"
       },
       l3: {
-        title: "Level 3: 이산수학",
-        subtitle: "개념 & 논리",
-        description: "집합, 명제, 경우의 수 등 논리적 사고를 기릅니다.",
-        type: "개념"
+        title: "Level 3: 최적화 기초",
+        subtitle: "함수와 로그",
+        description: "이차함수와 지수/로그 등 신경망 기초 수학을 훈련합니다.",
+        type: "속도"
       },
       l4: {
-        title: "Level 4: 통계",
-        subtitle: "개념 & 분석",
-        description: "평균, 분산, 확률 등 데이터 분석의 기초를 배웁니다.",
+        title: "Level 4: 패턴과 확률",
+        subtitle: "수열과 통계 기초",
+        description: "시그마 기호, 경우의 수, 기본 확률 분포를 마스터합니다.",
         type: "개념"
       },
       l5: {
-        title: "Level 5: 선형대수",
-        subtitle: "시각화 & 행렬",
-        description: "벡터와 행렬을 시각적으로 이해하고 연습합니다.",
+        title: "Level 5: 선형대수 기초",
+        subtitle: "데이터의 언어 I",
+        description: "벡터의 개념과 행렬 연산(곱셈)을 시각적으로 훈련합니다.",
         type: "시각화"
       },
       l6: {
-        title: "Level 6: 미적분",
-        subtitle: "시각화 & AI 기초",
-        description: "변화율과 적분의 개념을 시각화로 마스터합니다.",
+        title: "Level 6: 선형대수 심화",
+        subtitle: "데이터의 언어 II",
+        description: "고유값, SVD 등 차원 축소의 핵심 원리를 이해합니다.",
         type: "시각화"
+      },
+      l7: {
+        title: "Level 7: 미적분과 경사",
+        subtitle: "미분과 학습",
+        description: "미분계수와 연쇄법칙을 통해 역전파의 원리를 학습합니다.",
+        type: "시각화"
+      },
+      l8: {
+        title: "Level 8: 통계적 추론",
+        subtitle: "베이즈 & 최적화",
+        description: "베이즈 정리, MLE, 볼록 최적화 등 AI 심화 이론을 다룹니다.",
+        type: "개념"
       }
     },
     selection: {
@@ -187,7 +219,9 @@ export const translations = {
       catFractions: "분수 연산",
       catIntegers: "정수 연산 (±)",
       catAlgebra: "기초 대수",
-      catPowers: "거듭제곱 및 제곱근"
+      catPowers: "거듭제곱 및 제곱근",
+      catFunctions: "함수와 로그",
+      catOptimization: "최적화 기초"
     },
     operations: {
       addition: "덧셈",
@@ -204,7 +238,10 @@ export const translations = {
       integer_multiplication: "정수 곱셈",
       equation_simple: "기초 방정식 (x)",
       exponent_basic: "거듭제곱",
-      square_root: "제곱근"
+      square_root: "제곱근",
+      quadratic_vertex: "이차함수 꼭짓점",
+      log_basic: "로그 계산",
+      exp_neural: "신경망 지수"
     },
     practiceInstructions: {
       addition: "더하기",
@@ -221,7 +258,10 @@ export const translations = {
       integer_multiplication: "정수 곱하기",
       equation_simple: "x 구하기",
       exponent_basic: "거듭제곱 계산",
-      square_root: "제곱근 구하기"
+      square_root: "제곱근 구하기",
+      quadratic_vertex: "최솟값 x (꼭짓점) 찾기",
+      log_basic: "로그 값 계산하기",
+      exp_neural: "활성화 값 추정하기"
     },
     help: {
       title: "기능 설명",

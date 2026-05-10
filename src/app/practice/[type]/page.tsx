@@ -19,6 +19,10 @@ export function generateStaticParams() {
     { type: 'equation_simple' },
     { type: 'exponent_basic' },
     { type: 'square_root' },
+    // Level 3
+    { type: 'quadratic_vertex' },
+    { type: 'log_basic' },
+    { type: 'exp_neural' },
   ];
 }
 

@@ -4,7 +4,9 @@ export type OperationType =
   | 'fraction_addition' | 'fraction_subtraction' | 'fraction_multiplication' | 'fraction_division'
   // Level 2
   | 'integer_addition' | 'integer_multiplication' 
-  | 'equation_simple' | 'exponent_basic' | 'square_root';
+  | 'equation_simple' | 'exponent_basic' | 'square_root'
+  // Level 3
+  | 'quadratic_vertex' | 'log_basic' | 'exp_neural';
 
 export interface Problem {
   id: string;
@@ -20,6 +22,7 @@ export interface Problem {
   factors1?: number[];
   factors2?: number[];
   equationVar?: string;
+  base?: number;
 }
 
 const calculateGCD = (a: number, b: number): number => {
@@ -57,6 +60,7 @@ export const generateProblem = (type: OperationType, digits: number): Problem =>
   let answer = 0;
   let denom1, denom2, answerDenom;
   let equationVar;
+  let base;
 
   // Helpers for fractions
   const genFrac = () => {
@@ -141,20 +145,16 @@ export const generateProblem = (type: OperationType, digits: number): Problem =>
       answer = num1 * num2;
       break;
     case 'equation_simple':
-      // x + a = b or x - a = b
       answer = genSigned(digits);
       num2 = genSigned(digits);
       const isAdd = Math.random() > 0.5;
       operator = isAdd ? '+' : '-';
       num1 = isAdd ? answer + num2 : answer - num2;
-      // We display: x [operator] [num2] = [num1]
-      // Wait, let's keep it consistent: num1 operator num2 = answer
-      // But for equations, we want to solve for x.
       equationVar = 'x';
       break;
     case 'exponent_basic':
-      num1 = Math.floor(Math.random() * 12) + 2; // base
-      num2 = Math.floor(Math.random() * 3) + 2; // exponent
+      num1 = Math.floor(Math.random() * 12) + 2;
+      num2 = Math.floor(Math.random() * 3) + 2;
       operator = '^';
       answer = Math.pow(num1, num2);
       break;
@@ -162,6 +162,28 @@ export const generateProblem = (type: OperationType, digits: number): Problem =>
       answer = Math.floor(Math.random() * 20) + 2;
       num1 = answer * answer;
       operator = '√';
+      break;
+
+    // Level 3
+    case 'quadratic_vertex':
+      // f(x) = (x - h)^2 + k
+      answer = genSigned(1); // h
+      num1 = answer;
+      num2 = Math.floor(Math.random() * 10) + 1; // k
+      operator = 'min';
+      break;
+    case 'log_basic':
+      base = [2, 3, 5, 10][Math.floor(Math.random() * 4)];
+      answer = Math.floor(Math.random() * 3) + 1;
+      num1 = Math.pow(base, answer);
+      num2 = base;
+      operator = 'log';
+      break;
+    case 'exp_neural':
+      num1 = [2, 3][Math.floor(Math.random() * 2)];
+      num2 = Math.floor(Math.random() * 5);
+      answer = Math.pow(num1, num2);
+      operator = 'exp';
       break;
   }
 

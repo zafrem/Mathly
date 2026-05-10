@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Zap, Brain, Rocket, Sparkles, User, Trophy, Lock, 
-  Calculator, Binary, Network, BarChart3, Grid3X3, FunctionSquare
+  Calculator, Binary, Grid3X3,
+  TrendingUp, Dices, Layers, Activity, BrainCircuit
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n/language-context';
@@ -50,17 +51,17 @@ export default function LauncherPage() {
       title: t.levels.l3.title, 
       subtitle: t.levels.l3.subtitle,
       description: t.levels.l3.description,
-      icon: Network, 
+      icon: TrendingUp, 
       color: 'bg-emerald-500',
       type: t.levels.l3.type,
-      status: 'locked'
+      status: 'active'
     },
     { 
       id: 4, 
       title: t.levels.l4.title, 
       subtitle: t.levels.l4.subtitle,
       description: t.levels.l4.description,
-      icon: BarChart3, 
+      icon: Dices, 
       color: 'bg-orange-500',
       type: t.levels.l4.type,
       status: 'locked'
@@ -80,9 +81,29 @@ export default function LauncherPage() {
       title: t.levels.l6.title, 
       subtitle: t.levels.l6.subtitle,
       description: t.levels.l6.description,
-      icon: FunctionSquare, 
+      icon: Layers, 
       color: 'bg-purple-500',
       type: t.levels.l6.type,
+      status: 'locked'
+    },
+    { 
+      id: 7, 
+      title: t.levels.l7.title, 
+      subtitle: t.levels.l7.subtitle,
+      description: t.levels.l7.description,
+      icon: Activity, 
+      color: 'bg-pink-500',
+      type: t.levels.l7.type,
+      status: 'locked'
+    },
+    { 
+      id: 8, 
+      title: t.levels.l8.title, 
+      subtitle: t.levels.l8.subtitle,
+      description: t.levels.l8.description,
+      icon: BrainCircuit, 
+      color: 'bg-cyan-600',
+      type: t.levels.l8.type,
       status: 'locked'
     },
   ];

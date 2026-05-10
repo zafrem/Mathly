@@ -1,50 +1,76 @@
 # Mathly 🚀
 
-**Computational Repetition Done Right.**
+**AI-Centric Mathematical Training System.**
 
-Mathly is a modern, fast-paced math practice application designed to help you master mental arithmetic through "fast response" and "liveliness." Built with Next.js 15, Tailwind CSS, and Framer Motion, it transforms repetitive calculations into an engaging, reactive experience.
+Mathly is a modern, high-energy math practice application designed to take you from foundational arithmetic to the core mathematics required for Artificial Intelligence. Built with Next.js, Tailwind CSS, and Framer Motion, it focuses on **speed**, **intuition**, and **visualization**.
+
+---
+
+## 🏁 The Curriculum: 8 Levels of AI Math
+
+Mathly guides you through a progressive journey, transitioning from raw calculation speed to conceptual and visual intuition.
+
+| Level | Topic | Training Focus | AI Application |
+| :--- | :--- | :--- | :--- |
+| **L1** | Foundational Arithmetic | Speed & Accuracy | Computational Basics |
+| **L2** | Elementary Algebra | Variables & Equations | Linear Models |
+| **L3** | Optimization Foundations | Functions & Logs | Neural Network Activations |
+| **L4** | Patterns & Uncertainty | Sequences & Probability | Data Distributions |
+| **L5** | Matrix Foundations | Linear Algebra I | Multi-dimensional Data |
+| **L6** | Structural Analysis | Linear Algebra II | SVD & PCA |
+| **L7** | Gradient Calculus | Differentiation | Backpropagation |
+| **L8** | Statistical Inference | Bayes & Optimization | Advanced AI Theory |
+
+---
 
 ## ✨ Key Features
 
-- **⚡ Instant Feedback:** Problems are validated in real-time as you type. No "Submit" button required—just pure flow.
-- **🎨 Lively Animations:** Fluid transitions and reactive feedback (like the "shake" on error) powered by Framer Motion.
-- **🔢 Dynamic Math Engine:** Generates unique problems for Addition, Subtraction, Multiplication, and Division.
-- **⚙️ Customizable Sprints:**
-  - **Difficulty:** Choose between 1 to 4 digits to match your skill level.
-  - **Time Limits:** Challenge yourself with 30s, 60s, or 120s sprints, or practice at your own pace with unlimited time.
-- **🏆 Streak Tracking:** Build your momentum with real-time streak counters and celebratory milestones (like the "10 in a row" trophy).
+### 🏎️ Competitive Racing
+- **👻 Ghost Pace:** Race against your past self! The blue bar tracks your Personal Best (PB) in real-time.
+- **🤖 Rival Bot:** Race against the computer! The red bar moves at a steady speed—solve fast to stay ahead.
+- **💥 Firecracker Feedback:** Correct answers trigger satisfying confetti bursts, while errors cause a tactile screen shake.
+
+### ⚙️ Specialized Practice
+- **⚡ Instant Validation:** No "Submit" button. Calculations are validated as you type for maximum flow.
+- **📱 Mobile Optimized:** A fluid UI designed for high-stakes practice on any device.
+- **🌐 Multi-Language:** Seamlessly switch between **English** and **Korean** via the top controls.
+
+---
 
 ## 🛠️ Tech Stack
 
 - **Framework:** [Next.js 15](https://nextjs.org/) (App Router)
 - **Styling:** [Tailwind CSS 4](https://tailwindcss.com/)
 - **Animations:** [Framer Motion](https://www.framer.com/motion/)
+- **Visual Effects:** [Canvas Confetti](https://www.npmjs.com/package/canvas-confetti)
 - **Icons:** [Lucide React](https://lucide.dev/)
 - **Language:** TypeScript
 
+---
+
 ## 🚀 Getting Started
 
-First, install the dependencies:
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-```bash
-npm install
-```
+2. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
 
-Then, run the development server:
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to start your first sprint!
-
-## 🧠 Core Philosophy
-
-The core of Mathly is **Computational Repetition**. To get faster at math, you need to do it often, but traditional tools often feel sluggish. Mathly removes the friction:
-1. **Focus on Speed:** Auto-advancing to the next problem ensures you never break your concentration.
-2. **Visual Feedback:** Liveliness isn't just for show; it provides immediate cognitive cues for success and failure.
-3. **Engagement:** Small gamification elements like streaks and trophies make the grind feel like a game.
+3. **Train:** Open [http://localhost:3000](http://localhost:3000) and start your sprint!
 
 ---
 
-2026 zafrem - Computational Repetition Done Right
+## 🧠 Core Philosophy: Repetition Done Right
+
+To master AI, the underlying math must be **automated**.
+1. **Processor (L1-L3):** Train raw speed so that simple algebra becomes a background task for your brain.
+2. **Algorithm (L4):** Master logical patterns and counting.
+3. **Architecture (L5-L8):** Shift to visual intuition to understand the geometry of high-dimensional data space.
+
+---
+
+2026 Mathly - Specializing in mathematical intuition for the AI era.
