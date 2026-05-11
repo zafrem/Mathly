@@ -128,6 +128,31 @@ export const translations = {
       botTitle: "Rival Bot",
       botDesc: "Racing the computer! This red bar moves at a steady speed. Don't let it overtake you!"
     },
+    concepts: {
+      title: "Core Intuition",
+      start: "I'm ready",
+      quadratic_vertex: {
+        formula: "f(x) = (x - h)² + k",
+        points: [
+          "The value 'h' is the center of the curve.",
+          "Since the square is always ≥ 0, the minimum is reached at x = h."
+        ]
+      },
+      log_basic: {
+        formula: "log_b(x) = ?",
+        points: [
+          "A logarithm is just a 'missing exponent'.",
+          "Ask yourself: 'What power of b gives me x?'"
+        ]
+      },
+      exp_neural: {
+        formula: "b^x = ?",
+        points: [
+          "Neural networks use exponents to scale signals.",
+          "Practice quick estimation of 2^x and 3^x."
+        ]
+      }
+    },
     practice: {
       getReady: "Get Ready",
       ghostPace: "Ghost Pace",
@@ -270,6 +295,31 @@ export const translations = {
       ghostDesc: "과거의 나와 경쟁하세요! 파란색 바는 현재 레벨에서의 내 최고 기록(Personal Best)을 나타냅니다. 바보다 앞서나가 새로운 기록을 세워보세요.",
       botTitle: "라이벌 봇 (Rival Bot)",
       botDesc: "컴퓨터와 경쟁하세요! 빨간색 바는 일정한 속도로 움직입니다. 봇에게 추월당하지 않도록 빠르게 문제를 해결하세요!"
+    },
+    concepts: {
+      title: "핵심 개념",
+      start: "준비됐어요",
+      quadratic_vertex: {
+        formula: "f(x) = (x - h)² + k",
+        points: [
+          "'h' 값은 곡선의 중심(꼭짓점)의 위치를 결정합니다.",
+          "제곱 부분은 항상 0보다 크거나 같으므로, x = h일 때 최솟값을 갖습니다."
+        ]
+      },
+      log_basic: {
+        formula: "log_b(x) = ?",
+        points: [
+          "로그는 '숨겨진 지수'를 찾는 과정입니다.",
+          "'밑 b를 몇 번 곱해야 x가 될까?'라고 생각해보세요."
+        ]
+      },
+      exp_neural: {
+        formula: "b^x = ?",
+        points: [
+          "신경망은 신호를 증폭하거나 억제하기 위해 지수를 사용합니다.",
+          "2와 3의 거듭제곱 값을 빠르게 추정하는 연습을 합니다."
+        ]
+      }
     },
     practice: {
       getReady: "준비하세요",

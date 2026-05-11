@@ -3,8 +3,9 @@
 import { useState, use, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Trophy, Zap, Timer, RotateCcw, Flame, Ghost, Bot } from 'lucide-react';
+import { ArrowLeft, Trophy, Zap, Timer, RotateCcw, Flame, Ghost, Bot, Clock } from 'lucide-react';
 import ProblemCard from '@/components/practice/problem-card';
+import ConceptCard from '@/components/practice/concept-card';
 import { cn } from '@/lib/utils';
 import { mathlyAudio } from '@/lib/audio';
 import { useLanguage } from '@/lib/i18n/language-context';
@@ -32,6 +33,29 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
   
   const backPath = level ? `/level/${level}` : '/';
   
+  const difficultyCoefficients: Record<string, number> = {
+    addition: 1,
+    subtraction: 1.2,
+    multiplication: 2.5,
+    division: 2,
+    gcd: 4,
+    lcm: 4,
+    fraction_addition: 5,
+    fraction_subtraction: 5,
+    fraction_multiplication: 4,
+    fraction_division: 4,
+    integer_addition: 1.5,
+    integer_multiplication: 2,
+    equation_simple: 3,
+    exponent_basic: 2.5,
+    square_root: 2.5,
+    quadratic_vertex: 3,
+    log_basic: 3,
+    exp_neural: 3,
+  };
+
+  const coeff = difficultyCoefficients[type as keyof typeof difficultyCoefficients] || 1;
+
   const [streak, setStreak] = useState(0);
   const [solved, setSolved] = useState(0);
   const [score, setScore] = useState(0);
@@ -41,6 +65,8 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
   const [isFinished, setIsFinished] = useState(false);
   const [countdown, setCountdown] = useState(3);
   const [isError, setIsError] = useState(false);
+  const [showConcept, setShowConcept] = useState(() => !!(t.concepts as any)[type]);
+  const [bonusAdded, setBonusAdded] = useState(0);
 
   // Ghost Mode: Personal Best
   const personalBest = useMemo(() => {
@@ -51,16 +77,19 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
     return relevant.length > 0 ? Math.max(...relevant.map(s => s.score)) : 0;
   }, [type, digits]);
 
-  // Bot Logic: Rival score increases over time
+  // Bot Logic
   useEffect(() => {
-    if (countdown > 0 || isFinished || initialTime === 0) return;
+    if (showConcept || countdown > 0 || isFinished || initialTime === 0) return;
     const botTimer = setInterval(() => {
-      setBotScore(prev => prev + (250 * digits));
-    }, 3000);
+      const botPace = Math.floor((400 * coeff * (1 + (digits - 1) * 0.5)) / 3);
+      setBotScore(prev => prev + botPace);
+    }, 1000); 
     return () => clearInterval(botTimer);
-  }, [countdown, isFinished, digits, initialTime]);
+  }, [showConcept, countdown, isFinished, digits, initialTime, coeff]);
 
+  // Countdown Logic
   useEffect(() => {
+    if (showConcept) return;
     if (countdown > 0) {
       const timer = setInterval(() => {
         setCountdown((prev) => prev - 1);
@@ -68,10 +97,11 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [countdown]);
+  }, [showConcept, countdown]);
 
+  // Timer Logic
   useEffect(() => {
-    if (initialTime === 0 || countdown > 0 || isFinished) return;
+    if (initialTime === 0 || showConcept || countdown > 0 || isFinished) return;
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -82,7 +112,7 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [initialTime, countdown, isFinished]);
+  }, [initialTime, showConcept, countdown, isFinished]);
 
   useEffect(() => {
     if (isFinished && score > 0) {
@@ -95,7 +125,14 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
   const handleSuccess = (timeMs: number) => {
     if (isFinished) return;
     
-    // Firecracker effect
+    // Time Bonus Logic
+    if (initialTime > 0) {
+      const bonus = Math.floor(1 + (coeff * (1 + (digits - 1) * 0.3)));
+      setTimeLeft(prev => prev + bonus);
+      setBonusAdded(bonus);
+      setTimeout(() => setBonusAdded(0), 1000);
+    }
+
     confetti({
       particleCount: 40,
       spread: 60,
@@ -106,15 +143,21 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
     });
 
     mathlyAudio?.playScale(streak);
+    
+    const baseDifficultyScore = 1000 * coeff * digits;
+    const speedFactor = Math.min(2, Math.max(0.1, 1500 / (timeMs + 200)));
+    
     const isFast = timeMs < 1500;
     const newCombo = isFast ? combo + 1 : 0;
     setCombo(newCombo);
-    const multiplier = 1 + (newCombo * 0.5);
-    const basePoints = Math.max(1, Math.floor((10000 / Math.max(timeMs, 100)) * digits));
-    const finalPoints = Math.floor(basePoints * multiplier);
+    
+    const multiplier = 1 + (newCombo * 0.2); 
+    const finalPoints = Math.floor(baseDifficultyScore * speedFactor * multiplier);
+    
     setScore(s => s + finalPoints);
     setStreak(s => s + 1);
     setSolved(s => s + 1);
+    
     if ((solved + 1) % 10 === 0) {
       mathlyAudio?.playMilestone();
       confetti({
@@ -186,6 +229,10 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
       }}
       className="min-h-screen py-6 sm:py-12 px-2 sm:px-4 relative overflow-hidden"
     >
+      <AnimatePresence>
+        {showConcept && <ConceptCard type={type} onStart={() => setShowConcept(false)} />}
+      </AnimatePresence>
+
       <motion.div
         animate={isError ? { x: [0, -10, 10, -5, 5, 0] } : { x: 0 }}
         transition={{ duration: 0.4 }}
@@ -230,10 +277,24 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
         <div className="max-w-4xl mx-auto relative mt-10 sm:mt-12">
           <header className="flex items-center justify-between mb-8 sm:mb-12">
             <button onClick={() => router.push(backPath)} className="p-2 sm:p-3 rounded-full bg-white shadow-sm border border-gray-100 text-gray-600 hover:bg-gray-50"><ArrowLeft className="sm:w-6 sm:h-6 w-5 h-5" /></button>
-            <div className="flex gap-2 sm:gap-4">
+            <div className="flex gap-2 sm:gap-4 items-center">
               {initialTime > 0 && countdown === 0 && (
-                <div className={cn("flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full bg-white shadow-sm border border-gray-100", timeLeft < 10 ? "text-red-500 animate-pulse border-red-100" : "text-gray-700")}>
-                  <Timer className="sm:w-5 sm:h-5 w-4 h-4" /><span className="font-bold text-sm sm:text-base">{formatTime(timeLeft)}</span>
+                <div className="relative">
+                  <div className={cn("flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full bg-white shadow-sm border border-gray-100", timeLeft < 10 ? "text-red-500 animate-pulse border-red-100" : "text-gray-700")}>
+                    <Timer className="sm:w-5 sm:h-5 w-4 h-4" /><span className="font-bold text-sm sm:text-base">{formatTime(timeLeft)}</span>
+                  </div>
+                  <AnimatePresence>
+                    {bonusAdded > 0 && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: -30 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 flex items-center justify-center text-green-500 font-black text-sm pointer-events-none"
+                      >
+                        +{bonusAdded}s
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               )}
               {countdown === 0 && (
