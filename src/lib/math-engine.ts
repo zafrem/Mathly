@@ -145,11 +145,12 @@ export const generateProblem = (type: OperationType, digits: number): Problem =>
       answer = num1 * num2;
       break;
     case 'equation_simple':
-      answer = genSigned(digits);
-      num2 = genSigned(digits);
+      // x + a = b or x - a = b
+      answer = genSigned(digits); // x
+      num2 = Math.floor(Math.random() * (Math.pow(10, digits) - 1)) + 1; // a (always positive)
       const isAdd = Math.random() > 0.5;
       operator = isAdd ? '+' : '-';
-      num1 = isAdd ? answer + num2 : answer - num2;
+      num1 = isAdd ? answer + num2 : answer - num2; // b
       equationVar = 'x';
       break;
     case 'exponent_basic':
