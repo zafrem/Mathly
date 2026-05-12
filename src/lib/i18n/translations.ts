@@ -168,7 +168,9 @@ export const translations = {
       backToSelection: "Back to Selection",
       skip: "Skip Problem",
       numPlaceholder: "Num",
-      denPlaceholder: "Den"
+      denPlaceholder: "Den",
+      booster: "Booster",
+      timeSlow: "Time Slow"
     }
   },
   ko: {
@@ -336,7 +338,9 @@ export const translations = {
       backToSelection: "메뉴로 돌아가기",
       skip: "문제 건너뛰기",
       numPlaceholder: "분자",
-      denPlaceholder: "분모"
+      denPlaceholder: "분모",
+      booster: "부스터",
+      timeSlow: "시간 지연"
     }
   }
 };

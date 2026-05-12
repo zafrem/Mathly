@@ -11,7 +11,7 @@ interface ConceptCardProps {
 
 export default function ConceptCard({ type, onStart }: ConceptCardProps) {
   const { t } = useLanguage();
-  const concept = (t.concepts as any)[type];
+  const concept = (t.concepts as Record<string, { formula: string; points: string[] }>)[type];
 
   if (!concept) return null;
 

@@ -3,7 +3,7 @@
 import { useState, use, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Trophy, Zap, Timer, RotateCcw, Flame, Ghost, Bot, Clock } from 'lucide-react';
+import { ArrowLeft, Trophy, Zap, Timer, RotateCcw, Flame, Ghost, Bot } from 'lucide-react';
 import ProblemCard from '@/components/practice/problem-card';
 import ConceptCard from '@/components/practice/concept-card';
 import { cn } from '@/lib/utils';
@@ -65,8 +65,11 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
   const [isFinished, setIsFinished] = useState(false);
   const [countdown, setCountdown] = useState(3);
   const [isError, setIsError] = useState(false);
-  const [showConcept, setShowConcept] = useState(() => !!(t.concepts as any)[type]);
+  const [showConcept, setShowConcept] = useState(() => !!(t.concepts as Record<string, unknown>)[type]);
   const [bonusAdded, setBonusAdded] = useState(0);
+
+  // Booster Mode: Triggered at 5 streak
+  const isBooster = streak >= 5;
 
   // Ghost Mode: Personal Best
   const personalBest = useMemo(() => {
@@ -77,15 +80,17 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
     return relevant.length > 0 ? Math.max(...relevant.map(s => s.score)) : 0;
   }, [type, digits]);
 
-  // Bot Logic
+  // Bot Logic: Rival score increases based on difficulty
   useEffect(() => {
     if (showConcept || countdown > 0 || isFinished || initialTime === 0) return;
     const botTimer = setInterval(() => {
-      const botPace = Math.floor((400 * coeff * (1 + (digits - 1) * 0.5)) / 3);
+      // Bot pace is halved during booster
+      const multiplier = isBooster ? 0.5 : 1.0;
+      const botPace = Math.floor((multiplier * 400 * coeff * (1 + (digits - 1) * 0.5)) / 3);
       setBotScore(prev => prev + botPace);
     }, 1000); 
     return () => clearInterval(botTimer);
-  }, [showConcept, countdown, isFinished, digits, initialTime, coeff]);
+  }, [showConcept, countdown, isFinished, digits, initialTime, coeff, isBooster]);
 
   // Countdown Logic
   useEffect(() => {
@@ -99,9 +104,13 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
     }
   }, [showConcept, countdown]);
 
-  // Timer Logic
+  // Timer Logic: Slows down during booster
   useEffect(() => {
     if (initialTime === 0 || showConcept || countdown > 0 || isFinished) return;
+    
+    // 1000ms normal, 2000ms in booster (time moves half as fast)
+    const interval = isBooster ? 2000 : 1000;
+    
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -110,9 +119,9 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
         }
         return prev - 1;
       });
-    }, 1000);
+    }, interval);
     return () => clearInterval(timer);
-  }, [initialTime, showConcept, countdown, isFinished]);
+  }, [initialTime, showConcept, countdown, isFinished, isBooster]);
 
   useEffect(() => {
     if (isFinished && score > 0) {
@@ -137,13 +146,14 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
       particleCount: 40,
       spread: 60,
       origin: { y: 0.7 },
-      colors: ['#3B82F6', '#10B981', '#F59E0B'],
+      colors: isBooster ? ['#F59E0B', '#FCD34D', '#FFFBEB'] : ['#3B82F6', '#10B981', '#F59E0B'],
       scalar: 0.7,
       ticks: 50
     });
 
     mathlyAudio?.playScale(streak);
     
+    // Improved Scoring Logic:
     const baseDifficultyScore = 1000 * coeff * digits;
     const speedFactor = Math.min(2, Math.max(0.1, 1500 / (timeMs + 200)));
     
@@ -157,7 +167,12 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
     setScore(s => s + finalPoints);
     setStreak(s => s + 1);
     setSolved(s => s + 1);
-    
+
+    if (streak === 4) { // Will become 5
+      mathlyAudio?.playMilestone();
+      confetti({ particleCount: 100, spread: 100, colors: ['#F59E0B'] });
+    }
+
     if ((solved + 1) % 10 === 0) {
       mathlyAudio?.playMilestone();
       confetti({
@@ -183,11 +198,12 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
   };
 
   const categoryColor = useMemo(() => {
+    if (isBooster) return 'rgba(245, 158, 11, 0.15)'; // Golden for booster
     if (type.includes('addition')) return 'rgba(59, 130, 246, 0.1)';
     if (type.includes('subtraction')) return 'rgba(239, 68, 68, 0.1)';
     if (type.includes('multiplication')) return 'rgba(244, 63, 94, 0.1)';
     return 'rgba(16, 185, 129, 0.1)';
-  }, [type]);
+  }, [type, isBooster]);
 
   if (isFinished) {
     const beatBot = score > botScore;
@@ -225,7 +241,7 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
   return (
     <motion.div 
       animate={{ 
-        backgroundColor: combo > 2 ? categoryColor : '#f9fafb',
+        backgroundColor: categoryColor,
       }}
       className="min-h-screen py-6 sm:py-12 px-2 sm:px-4 relative overflow-hidden"
     >
@@ -280,8 +296,13 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
             <div className="flex gap-2 sm:gap-4 items-center">
               {initialTime > 0 && countdown === 0 && (
                 <div className="relative">
-                  <div className={cn("flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full bg-white shadow-sm border border-gray-100", timeLeft < 10 ? "text-red-500 animate-pulse border-red-100" : "text-gray-700")}>
+                  <div className={cn(
+                    "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full border transition-all",
+                    isBooster ? "bg-amber-400 border-amber-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.4)]" : "bg-white border-gray-100 text-gray-700 shadow-sm",
+                    timeLeft < 10 && !isBooster ? "text-red-500 animate-pulse border-red-100" : ""
+                  )}>
                     <Timer className="sm:w-5 sm:h-5 w-4 h-4" /><span className="font-bold text-sm sm:text-base">{formatTime(timeLeft)}</span>
+                    {isBooster && <motion.div animate={{ opacity: [1, 0.5, 1] }} transition={{ repeat: Infinity, duration: 1 }} className="ml-1 text-[8px] sm:text-[10px] font-black uppercase">{t.practice.timeSlow}</motion.div>}
                   </div>
                   <AnimatePresence>
                     {bonusAdded > 0 && (
@@ -299,12 +320,19 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
               )}
               {countdown === 0 && (
                 <>
-                  <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full bg-white shadow-sm border border-gray-100 relative overflow-hidden">
-                    {combo > 1 && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-1 text-orange-500 font-black text-xs sm:text-base"><Flame className="sm:w-4.5 sm:h-4.5 w-3.5 h-3.5" fill="currentColor" /> x{1 + (combo * 0.5)}</motion.div>}
-                    <span className="font-black text-blue-500 tabular-nums text-sm sm:text-base">{score.toLocaleString()}</span>
+                  <div className={cn(
+                    "flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full border transition-all relative overflow-hidden",
+                    isBooster ? "bg-amber-500 border-amber-600 text-white shadow-lg" : "bg-white border-gray-100 shadow-sm"
+                  )}>
+                    {isBooster ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 4, ease: "linear" }} className="text-white"><Zap className="sm:w-4.5 sm:h-4.5 w-3.5 h-3.5" fill="currentColor" /></motion.div> : combo > 1 && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-1 text-orange-500 font-black text-xs sm:text-base"><Flame className="sm:w-4.5 sm:h-4.5 w-3.5 h-3.5" fill="currentColor" /> x{1 + (combo * 0.5)}</motion.div>}
+                    <span className={cn("font-black tabular-nums text-sm sm:text-base", isBooster ? "text-white" : "text-blue-500")}>{score.toLocaleString()}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full bg-white shadow-sm border border-gray-100">
-                    <Zap className="text-yellow-500 sm:w-5 sm:h-5 w-4 h-4" /><span className="font-bold text-gray-700 text-sm sm:text-base">{streak}</span>
+                  <div className={cn(
+                    "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full border transition-all",
+                    isBooster ? "bg-white border-amber-400 text-amber-600 shadow-sm" : "bg-white border-gray-100 text-gray-700 shadow-sm"
+                  )}>
+                    <Zap className={cn(isBooster ? "text-amber-500" : "text-yellow-500", "sm:w-5 sm:h-5 w-4 h-4")} />
+<span className="font-bold text-sm sm:text-base">{streak}</span>
                   </div>
                 </>
               )}
@@ -325,6 +353,16 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
                       {t.practiceInstructions[type as keyof typeof t.practiceInstructions] || type.replace('_', ' ')}
                     </h1>
                     <p className="text-gray-500 text-sm sm:text-base">{userName} &bull; {digits} {t.selection.digits}</p>
+                    {isBooster && (
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.5 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200"
+                      >
+                        <Zap size={14} fill="currentColor" className="animate-pulse" />
+                        <span className="font-black text-xs uppercase tracking-widest">{t.practice.booster} ACTIVE</span>
+                      </motion.div>
+                    )}
                   </div>
                   <ProblemCard key={`${type}-${digits}`} type={type as OperationType} digits={digits} onSuccess={handleSuccess} onFailure={handleFailure} />
                 </motion.div>
