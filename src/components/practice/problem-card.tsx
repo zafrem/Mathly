@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, RefreshCw } from 'lucide-react';
+import { Check, X, RefreshCw, HelpCircle, ArrowRight } from 'lucide-react';
 import { Problem, generateProblem, OperationType } from '@/lib/math-engine';
 import { cn } from '@/lib/utils';
 import { mathlyAudio } from '@/lib/audio';
@@ -13,15 +13,19 @@ interface ProblemCardProps {
   digits: number;
   onSuccess?: (timeMs: number) => void;
   onFailure?: () => void;
+  onShowSolution?: () => void;
+  onHideSolution?: () => void;
 }
 
-export default function ProblemCard({ type, digits, onSuccess, onFailure }: ProblemCardProps) {
+export default function ProblemCard({ type, digits, onSuccess, onFailure, onShowSolution, onHideSolution }: ProblemCardProps) {
   const { t } = useLanguage();
   const [problem, setProblem] = useState<Problem>(() => generateProblem(type, digits));
   const [userAnswer, setUserAnswer] = useState<string>('');
   const [userDenom, setUserDenom] = useState<string>('');
   const [carries, setCarries] = useState<string[]>(() => new Array(problem.answer.toString().length).fill(''));
   const [status, setStatus] = useState<'idle' | 'correct' | 'incorrect'>('idle');
+  const [showSolution, setShowSolution] = useState(false);
+  
   const startTime = useRef<number>(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -30,6 +34,10 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
   }, [problem.id]);
 
   const handleNext = () => {
+    if (showSolution) {
+      setShowSolution(false);
+      onHideSolution?.();
+    }
     const p = generateProblem(type, digits);
     setProblem(p);
     setUserAnswer('');
@@ -40,6 +48,8 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
   };
 
   const handleCheck = (num: string, den: string) => {
+    if (showSolution) return;
+    
     const n = parseInt(num);
     const d = parseInt(den || '1');
     
@@ -62,7 +72,11 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
         mathlyAudio?.playSuccess();
         onSuccess?.(time);
         setTimeout(handleNext, 1000);
-      } else if (num.length >= problem.answer.toString().length) {
+      } else if (num.length >= problem.answer.toString().length && !num.startsWith('-')) {
+        setStatus('incorrect');
+        mathlyAudio?.playError();
+        onFailure?.();
+      } else if (num.startsWith('-') && num.length > problem.answer.toString().length) {
         setStatus('incorrect');
         mathlyAudio?.playError();
         onFailure?.();
@@ -94,6 +108,15 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
     }
   };
 
+  const toggleSolution = () => {
+    if (!showSolution) {
+      setShowSolution(true);
+      onShowSolution?.();
+    } else {
+      handleNext();
+    }
+  };
+
   if (!problem) return null;
 
   const isVertical = digits >= 2 && (type === 'addition' || type === 'subtraction');
@@ -105,12 +128,49 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
   const isQuadratic = type === 'quadratic_vertex';
   const isLog = type === 'log_basic';
   
+  const hasSolution = !!(t.solutions as Record<string, string>)[type];
+  
   const maxLen = Math.max(problem.num1.toString().length, problem.num2.toString().length);
   const num1Str = problem.num1.toString().padStart(maxLen, ' ');
   const num2Str = problem.num2.toString().padStart(maxLen, ' ');
 
   return (
-    <motion.div key={problem.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="max-w-xl w-full mx-auto p-6 sm:p-12 rounded-3xl sm:rounded-[2.5rem] bg-white shadow-[0_20px_48px_-12px_rgba(0,0,0,0.08)] sm:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-gray-100">
+    <motion.div 
+      key={problem.id} 
+      initial={{ opacity: 0, y: 20 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      exit={{ opacity: 0, scale: 0.95 }} 
+      className="max-w-xl w-full mx-auto p-6 sm:p-12 rounded-3xl sm:rounded-[2.5rem] bg-white shadow-[0_20px_48px_-12px_rgba(0,0,0,0.08)] sm:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-gray-100 relative overflow-hidden"
+    >
+      <AnimatePresence>
+        {showSolution && (
+          <motion.div 
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -100 }}
+            className="absolute inset-0 z-50 bg-white p-8 sm:p-12 flex flex-col items-center justify-center text-center"
+          >
+            <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 mb-6">
+              <HelpCircle size={32} />
+            </div>
+            <h2 className="text-sm font-black text-blue-500 uppercase tracking-[0.3em] mb-2">{t.practice.solution}</h2>
+            <div className="text-5xl font-black text-gray-900 mb-6 tabular-nums">
+              {problem.type.startsWith('fraction_') ? `${problem.answer}/${problem.answerDenom}` : problem.answer}
+            </div>
+            <p className="text-gray-600 font-medium leading-relaxed max-w-xs mb-10">
+              {(t.solutions as Record<string, string>)[type]}
+            </p>
+            <button 
+              onClick={handleNext}
+              className="w-full py-4 bg-gray-900 text-white font-black rounded-2xl flex items-center justify-center gap-2 hover:bg-gray-800 transition-all"
+            >
+              <span>{t.practice.gotIt}</span>
+              <ArrowRight size={20} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {isFraction ? (
         <div className="flex flex-col items-center gap-6 sm:gap-8 mb-8 sm:mb-10">
           <div className="flex items-center gap-4 sm:gap-8 text-3xl sm:text-5xl font-black text-gray-800">
@@ -170,7 +230,7 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
         </div>
       ) : isQuadratic ? (
         <div className="flex flex-col items-center justify-center gap-6 mb-8 sm:mb-10">
-          <div className="text-3xl sm:text-5xl font-black text-gray-800 tracking-tight text-center">
+          <div className="text-3xl sm:text-5xl font-black text-gray-800 tracking-tight text-center leading-tight">
             f(x) = (x {problem.num1 >= 0 ? '-' : '+'} <span className="text-blue-500">?</span>)² + {problem.num2}
           </div>
           <p className="text-gray-400 font-bold uppercase text-[10px] sm:text-xs tracking-widest">{t.practiceInstructions.quadratic_vertex}</p>
@@ -211,8 +271,18 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
         </div>
       )}
 
-      <div className="mt-8 sm:mt-10 flex justify-center">
-        <button onClick={handleNext} className="flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-sm sm:text-base transition-all hover:scale-105 active:scale-95"><RefreshCw size={18} className="sm:w-6 sm:h-6" /> {t.practice.skip}</button>
+      <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 justify-center">
+        {hasSolution && (
+          <button 
+            onClick={toggleSolution} 
+            className="flex items-center justify-center gap-2 px-6 py-4 rounded-xl sm:rounded-2xl bg-blue-50 text-blue-600 font-bold text-sm sm:text-base hover:bg-blue-100 transition-all active:scale-95"
+          >
+            <HelpCircle size={18} className="sm:w-6 sm:h-6" /> {t.practice.showAnswer}
+          </button>
+        )}
+        <button onClick={handleNext} className="flex items-center justify-center gap-2 px-6 py-4 rounded-xl sm:rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-sm sm:text-base transition-all active:scale-95">
+          <RefreshCw size={18} className="sm:w-6 sm:h-6" /> {t.practice.skip}
+        </button>
       </div>
     </motion.div>
   );

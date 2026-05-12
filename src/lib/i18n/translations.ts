@@ -153,6 +153,11 @@ export const translations = {
         ]
       }
     },
+    solutions: {
+      quadratic_vertex: "The vertex form is (x - h)². The minimum occurs when the square is 0, so x = h. Simply flip the sign of the number inside the parentheses!",
+      log_basic: "Find the exponent: Base^? = Result. For example, log₂(8) is 3 because 2³=8.",
+      exp_neural: "Multiply the base by itself the number of times shown by the exponent."
+    },
     practice: {
       getReady: "Get Ready",
       ghostPace: "Ghost Pace",
@@ -170,7 +175,10 @@ export const translations = {
       numPlaceholder: "Num",
       denPlaceholder: "Den",
       booster: "Booster",
-      timeSlow: "Time Slow"
+      timeSlow: "Time Slow",
+      showAnswer: "Show Answer",
+      gotIt: "Got it, Next",
+      solution: "Solution"
     }
   },
   ko: {
@@ -323,6 +331,11 @@ export const translations = {
         ]
       }
     },
+    solutions: {
+      quadratic_vertex: "이차함수 꼭짓점 형식 (x - h)²에서 제곱 부분이 0이 될 때 최솟값을 가집니다. 즉, 괄호 안의 숫자 부호를 반대로 바꾸면 정답 x가 됩니다!",
+      log_basic: "밑(Base)을 몇 번 곱해야 결과값이 나오는지 생각해보세요. 예를 들어 log₂(8)은 2³=8이므로 정답은 3입니다.",
+      exp_neural: "지수만큼 밑을 거듭해서 곱한 값을 구합니다."
+    },
     practice: {
       getReady: "준비하세요",
       ghostPace: "고스트 페이스",
@@ -340,7 +353,10 @@ export const translations = {
       numPlaceholder: "분자",
       denPlaceholder: "분모",
       booster: "부스터",
-      timeSlow: "시간 지연"
+      timeSlow: "시간 지연",
+      showAnswer: "정답 보기",
+      gotIt: "알겠어요, 다음 문제",
+      solution: "해설"
     }
   }
 };

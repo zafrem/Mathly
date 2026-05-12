@@ -67,6 +67,7 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
   const [isError, setIsError] = useState(false);
   const [showConcept, setShowConcept] = useState(() => !!(t.concepts as Record<string, unknown>)[type]);
   const [bonusAdded, setBonusAdded] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   // Booster Mode: Triggered at 5 streak
   const isBooster = streak >= 5;
@@ -80,17 +81,16 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
     return relevant.length > 0 ? Math.max(...relevant.map(s => s.score)) : 0;
   }, [type, digits]);
 
-  // Bot Logic: Rival score increases based on difficulty
+  // Bot Logic
   useEffect(() => {
-    if (showConcept || countdown > 0 || isFinished || initialTime === 0) return;
+    if (showConcept || countdown > 0 || isFinished || initialTime === 0 || isPaused) return;
     const botTimer = setInterval(() => {
-      // Bot pace is halved during booster
       const multiplier = isBooster ? 0.5 : 1.0;
       const botPace = Math.floor((multiplier * 400 * coeff * (1 + (digits - 1) * 0.5)) / 3);
       setBotScore(prev => prev + botPace);
     }, 1000); 
     return () => clearInterval(botTimer);
-  }, [showConcept, countdown, isFinished, digits, initialTime, coeff, isBooster]);
+  }, [showConcept, countdown, isFinished, digits, initialTime, coeff, isBooster, isPaused]);
 
   // Countdown Logic
   useEffect(() => {
@@ -104,11 +104,10 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
     }
   }, [showConcept, countdown]);
 
-  // Timer Logic: Slows down during booster
+  // Timer Logic
   useEffect(() => {
-    if (initialTime === 0 || showConcept || countdown > 0 || isFinished) return;
+    if (initialTime === 0 || showConcept || countdown > 0 || isFinished || isPaused) return;
     
-    // 1000ms normal, 2000ms in booster (time moves half as fast)
     const interval = isBooster ? 2000 : 1000;
     
     const timer = setInterval(() => {
@@ -121,7 +120,7 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
       });
     }, interval);
     return () => clearInterval(timer);
-  }, [initialTime, showConcept, countdown, isFinished, isBooster]);
+  }, [initialTime, showConcept, countdown, isFinished, isBooster, isPaused]);
 
   useEffect(() => {
     if (isFinished && score > 0) {
@@ -134,7 +133,6 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
   const handleSuccess = (timeMs: number) => {
     if (isFinished) return;
     
-    // Time Bonus Logic
     if (initialTime > 0) {
       const bonus = Math.floor(1 + (coeff * (1 + (digits - 1) * 0.3)));
       setTimeLeft(prev => prev + bonus);
@@ -153,7 +151,6 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
 
     mathlyAudio?.playScale(streak);
     
-    // Improved Scoring Logic:
     const baseDifficultyScore = 1000 * coeff * digits;
     const speedFactor = Math.min(2, Math.max(0.1, 1500 / (timeMs + 200)));
     
@@ -253,10 +250,8 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
         animate={isError ? { x: [0, -10, 10, -5, 5, 0] } : { x: 0 }}
         transition={{ duration: 0.4 }}
       >
-        {/* Competitive Race Track */}
         <div className="fixed top-0 left-0 w-full z-50 bg-white/50 backdrop-blur-sm border-b border-gray-100 py-1 sm:py-2">
           <div className="max-w-4xl mx-auto px-4 space-y-1.5 sm:space-y-3">
-            {/* Ghost PB Bar */}
             {personalBest > 0 && (
               <div className="relative h-2 sm:h-3 bg-gray-100 rounded-full overflow-hidden">
                 <motion.div 
@@ -272,7 +267,6 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
               </div>
             )}
             
-            {/* Rival Bot Bar */}
             {initialTime > 0 && (
               <div className="relative h-2 sm:h-3 bg-gray-100 rounded-full overflow-hidden">
                 <motion.div 
@@ -298,11 +292,12 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
                 <div className="relative">
                   <div className={cn(
                     "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full border transition-all",
-                    isBooster ? "bg-amber-400 border-amber-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.4)]" : "bg-white border-gray-100 text-gray-700 shadow-sm",
-                    timeLeft < 10 && !isBooster ? "text-red-500 animate-pulse border-red-100" : ""
+                    isPaused ? "bg-gray-900 border-gray-900 text-white shadow-lg" : isBooster ? "bg-amber-400 border-amber-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.4)]" : "bg-white border-gray-100 text-gray-700 shadow-sm",
+                    timeLeft < 10 && !isBooster && !isPaused ? "text-red-500 animate-pulse border-red-100" : ""
                   )}>
                     <Timer className="sm:w-5 sm:h-5 w-4 h-4" /><span className="font-bold text-sm sm:text-base">{formatTime(timeLeft)}</span>
-                    {isBooster && <motion.div animate={{ opacity: [1, 0.5, 1] }} transition={{ repeat: Infinity, duration: 1 }} className="ml-1 text-[8px] sm:text-[10px] font-black uppercase">{t.practice.timeSlow}</motion.div>}
+                    {isPaused && <span className="ml-2 text-[10px] font-black uppercase tracking-widest">PAUSED</span>}
+                    {isBooster && !isPaused && <motion.div animate={{ opacity: [1, 0.5, 1] }} transition={{ repeat: Infinity, duration: 1 }} className="ml-1 text-[8px] sm:text-[10px] font-black uppercase">{t.practice.timeSlow}</motion.div>}
                   </div>
                   <AnimatePresence>
                     {bonusAdded > 0 && (
@@ -332,7 +327,7 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
                     isBooster ? "bg-white border-amber-400 text-amber-600 shadow-sm" : "bg-white border-gray-100 text-gray-700 shadow-sm"
                   )}>
                     <Zap className={cn(isBooster ? "text-amber-500" : "text-yellow-500", "sm:w-5 sm:h-5 w-4 h-4")} />
-<span className="font-bold text-sm sm:text-base">{streak}</span>
+                    <span className="font-bold text-sm sm:text-base">{streak}</span>
                   </div>
                 </>
               )}
@@ -364,7 +359,15 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
                       </motion.div>
                     )}
                   </div>
-                  <ProblemCard key={`${type}-${digits}`} type={type as OperationType} digits={digits} onSuccess={handleSuccess} onFailure={handleFailure} />
+                  <ProblemCard 
+                    key={`${type}-${digits}`} 
+                    type={type as OperationType} 
+                    digits={digits} 
+                    onSuccess={handleSuccess} 
+                    onFailure={handleFailure}
+                    onShowSolution={() => setIsPaused(true)}
+                    onHideSolution={() => setIsPaused(false)}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>
