@@ -86,12 +86,14 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
     return relevant.length > 0 ? Math.max(...relevant.map(s => s.score)) : 0;
   }, [type, digits]);
 
-  // Bot Logic
+  // Bot Logic: Rival score increases based on difficulty
   useEffect(() => {
     if (showConcept || countdown > 0 || isFinished || initialTime === 0 || isPaused) return;
     const botTimer = setInterval(() => {
+      // Adjusted Bot Pace: Lowered significantly for better balance
+      // C / T > B / 3 check: bot base points lowered from 400 to 180
       const multiplier = isBooster ? 0.5 : 1.0;
-      const botPace = Math.floor((multiplier * 400 * coeff * (1 + (digits - 1) * 0.5)) / 3);
+      const botPace = Math.floor((multiplier * 180 * coeff * (1 + (digits - 1) * 0.25)) / 3);
       setBotScore(prev => prev + botPace);
     }, 1000); 
     return () => clearInterval(botTimer);
@@ -154,7 +156,9 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
 
     mathlyAudio?.playScale(streak);
     
+    // Improved Scoring Logic:
     const baseDifficultyScore = 1000 * coeff * digits;
+    // Forgiving speed factor for complex problems
     const speedFactor = Math.min(2, Math.max(0.1, 1500 / (timeMs + 200)));
     
     const isFast = timeMs < 1500;
