@@ -128,29 +128,34 @@ export default function LauncherPage() {
   const isActive = userName.trim().length > 0;
 
   return (
-    <div className="min-h-screen bg-white overflow-hidden pb-10 sm:pb-20 font-sans">
+    <div className="min-h-screen bg-white dark:bg-gray-950 overflow-hidden pb-10 sm:pb-20 font-sans transition-colors duration-300">
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
-        <motion.div animate={{ rotate: 360 }} transition={{ duration: 40, repeat: Infinity, ease: "linear" }} className="absolute -top-24 -left-24 text-blue-50/30"><Brain className="sm:w-[400px] sm:h-[400px] w-[300px] h-[300px]" /></motion.div>
-        <motion.div animate={{ y: [0, -40, 0], opacity: [0.1, 0.3, 0.1] }} transition={{ duration: 8, repeat: Infinity }} className="absolute bottom-1/4 right-12 text-blue-50/50"><Rocket className="sm:w-[250px] sm:h-[250px] w-[150px] h-[150px]" /></motion.div>
+        <motion.div animate={{ rotate: 360 }} transition={{ duration: 40, repeat: Infinity, ease: "linear" }} className="absolute -top-24 -left-24 text-blue-50/30 dark:text-blue-900/10"><Brain className="sm:w-[400px] sm:h-[400px] w-[300px] h-[300px]" /></motion.div>
+        <motion.div animate={{ y: [0, -40, 0], opacity: [0.1, 0.3, 0.1] }} transition={{ duration: 8, repeat: Infinity }} className="absolute bottom-1/4 right-12 text-blue-50/50 dark:text-blue-900/10"><Rocket className="sm:w-[250px] sm:h-[250px] w-[150px] h-[150px]" /></motion.div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-10 sm:py-20 relative">
         <header className="text-center mb-10 sm:mb-16">
-          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="inline-block px-4 py-1 rounded-full bg-blue-50 text-blue-600 font-bold text-xs sm:text-sm mb-4">
+          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="inline-block px-4 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-bold text-xs sm:text-sm mb-4">
             {t.launcher.tag}
           </motion.div>
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-6xl sm:text-8xl font-black text-gray-900 mb-6 tracking-tight">
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-6xl sm:text-8xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">
             Math<span className="text-blue-500">ly</span>
           </motion.h1>
           
           <div className="max-w-md mx-auto mb-4 relative group px-2 sm:px-0">
-            <User className={cn("absolute left-6 sm:left-4 top-1/2 -translate-y-1/2 transition-colors sm:w-6 sm:h-6 w-5 h-5", isActive ? "text-blue-500" : "text-gray-400")} />
+            <User className={cn("absolute left-6 sm:left-4 top-1/2 -translate-y-1/2 transition-colors sm:w-6 sm:h-6 w-5 h-5", isActive ? "text-blue-500" : "text-gray-400 dark:text-gray-600")} />
             <input 
               type="text" 
               placeholder={t.launcher.placeholder} 
               value={userName} 
               onChange={(e) => handleNameChange(e.target.value)} 
-              className={cn("w-full pl-12 sm:pl-14 pr-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 outline-none text-lg sm:text-xl font-bold text-black transition-all shadow-inner", isActive ? "border-blue-400 bg-white shadow-lg" : "border-gray-100 bg-gray-50 focus:border-blue-200")} 
+              className={cn(
+                "w-full pl-12 sm:pl-14 pr-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 outline-none text-lg sm:text-xl font-bold transition-all shadow-inner",
+                isActive 
+                  ? "border-blue-400 bg-white dark:bg-gray-900 text-black dark:text-white shadow-lg" 
+                  : "border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 text-black dark:text-white focus:border-blue-200"
+              )} 
             />
           </div>
           <AnimatePresence>
@@ -169,29 +174,34 @@ export default function LauncherPage() {
 
             return (
               <motion.div key={level.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} whileHover={!isLocked ? { y: -5 } : {}}>
-                <Link href={!isLocked ? `/level/${level.id}` : '#'} className={cn("block h-full p-6 sm:p-8 rounded-2xl sm:rounded-[2rem] border-2 transition-all relative overflow-hidden group", isLocked ? "bg-gray-50 border-transparent cursor-not-allowed opacity-75" : "bg-white border-gray-100 hover:border-blue-200 hover:shadow-xl")}>
+                <Link href={!isLocked ? `/level/${level.id}` : '#'} className={cn(
+                  "block h-full p-6 sm:p-8 rounded-2xl sm:rounded-[2rem] border-2 transition-all relative overflow-hidden group",
+                  isLocked 
+                    ? "bg-gray-50 dark:bg-gray-900/40 border-transparent cursor-not-allowed opacity-75" 
+                    : "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 hover:border-blue-200 dark:hover:border-blue-500/50 hover:shadow-xl dark:shadow-blue-900/10"
+                )}>
                   <div className="flex justify-between items-start mb-4 sm:mb-6">
-                    <div className={cn("w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center text-white transition-transform duration-500", isLocked ? "bg-gray-300" : level.color + " group-hover:rotate-12")}>
+                    <div className={cn("w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center text-white transition-transform duration-500", isLocked ? "bg-gray-300 dark:bg-gray-700" : level.color + " group-hover:rotate-12")}>
                       <Icon className="sm:w-8 sm:h-8 w-6 h-6" />
                     </div>
                     {!isLocked && (
-                      <div className="flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full bg-blue-50 text-blue-600 font-black text-[8px] sm:text-[10px] uppercase tracking-wider">
+                      <div className="flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-black text-[8px] sm:text-[10px] uppercase tracking-wider">
                         {level.type}
                       </div>
                     )}
-                    {isLocked && <Lock className="sm:w-5 sm:h-5 w-4 h-4 text-gray-300" />}
+                    {isLocked && <Lock className="sm:w-5 sm:h-5 w-4 h-4 text-gray-300 dark:text-gray-700" />}
                   </div>
-                  <h3 className={cn("text-xl sm:text-2xl font-black mb-1 sm:mb-2 transition-colors", isLocked ? "text-gray-400" : "text-gray-900 group-hover:text-blue-500")}>{level.title}</h3>
-                  <p className="text-gray-400 text-[10px] sm:text-sm font-bold uppercase tracking-widest mb-3 sm:mb-4">{level.subtitle}</p>
-                  <p className={cn("text-xs sm:text-sm leading-relaxed", isLocked ? "text-gray-300" : "text-gray-500")}>{level.description}</p>
+                  <h3 className={cn("text-xl sm:text-2xl font-black mb-1 sm:mb-2 transition-colors", isLocked ? "text-gray-400 dark:text-gray-600" : "text-gray-900 dark:text-white group-hover:text-blue-500 dark:group-hover:text-blue-400")}>{level.title}</h3>
+                  <p className="text-gray-400 dark:text-gray-500 text-[10px] sm:text-sm font-bold uppercase tracking-widest mb-3 sm:mb-4">{level.subtitle}</p>
+                  <p className={cn("text-xs sm:text-sm leading-relaxed", isLocked ? "text-gray-300 dark:text-gray-700" : "text-gray-500 dark:text-gray-400")}>{level.description}</p>
                   {!isLocked && (
-                    <div className="mt-6 sm:mt-8 flex items-center gap-2 text-blue-500 font-bold text-sm sm:text-base group-hover:translate-x-2 transition-transform">
+                    <div className="mt-6 sm:mt-8 flex items-center gap-2 text-blue-500 dark:text-blue-400 font-bold text-sm sm:text-base group-hover:translate-x-2 transition-transform">
                       <span>{t.launcher.startTraining}</span>
                       <Rocket className="sm:w-4 sm:h-4 w-3.5 h-3.5" />
                     </div>
                   )}
                   {!isLocked && (
-                    <div className="absolute -bottom-10 -right-10 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                    <div className="absolute -bottom-10 -right-10 opacity-[0.03] dark:opacity-[0.05] group-hover:opacity-[0.08] dark:group-hover:opacity-[0.1] transition-opacity">
                       <Icon className="sm:w-[150px] sm:h-[150px] w-[120px] h-[120px]" />
                     </div>
                   )}
@@ -201,7 +211,7 @@ export default function LauncherPage() {
           })}
         </div>
 
-        <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto bg-gray-900 rounded-3xl sm:rounded-[3rem] p-6 sm:p-12 text-white shadow-2xl relative overflow-hidden">
+        <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto bg-gray-900 dark:bg-blue-950/40 rounded-3xl sm:rounded-[3rem] p-6 sm:p-12 text-white shadow-2xl relative overflow-hidden border border-white/5 dark:border-blue-900/30">
           <div className="absolute top-0 right-0 p-4 sm:p-8 opacity-10"><Trophy className="sm:w-[160px] sm:h-[160px] w-[100px] h-[100px]" /></div>
           <div className="relative z-10">
             <h2 className="text-2xl sm:text-4xl font-black mb-6 sm:mb-10 flex items-center gap-3 sm:gap-4">
@@ -210,7 +220,7 @@ export default function LauncherPage() {
             </h2>
             <div className="space-y-3 sm:space-y-4">
               {scores.length > 0 ? scores.map((s: ScoreEntry, i: number) => (
-                <div key={i} className="flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                <div key={i} className="flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/5 dark:bg-white/5 border border-white/10 dark:border-white/10 hover:bg-white/10 transition-colors">
                   <div className="flex items-center gap-4 sm:gap-6">
                     <span className={cn("w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black text-sm sm:text-lg", i === 0 ? "bg-yellow-400 text-black" : "bg-white/10")}>{i + 1}</span>
                     <div>
@@ -228,7 +238,7 @@ export default function LauncherPage() {
               )) : (
                 <div className="text-center py-6 sm:py-10">
                   <p className="text-gray-500 font-bold uppercase tracking-[0.2em] mb-4 text-xs sm:text-sm">{t.launcher.noRankings}</p>
-                  <Rocket className="mx-auto text-gray-800 animate-bounce sm:w-12 sm:h-12 w-8 h-8" />
+                  <Rocket className="mx-auto text-gray-800 dark:text-gray-700 animate-bounce sm:w-12 sm:h-12 w-8 h-8" />
                 </div>
               )}
             </div>
@@ -236,7 +246,7 @@ export default function LauncherPage() {
         </motion.div>
 
         <footer className="mt-20 sm:mt-40 text-center">
-          <p className="text-gray-400 font-medium text-xs sm:text-base">© 2026 Mathly - {t.launcher.footer}</p>
+          <p className="text-gray-400 dark:text-gray-500 font-medium text-xs sm:text-base">© 2026 Mathly - {t.launcher.footer}</p>
           <div className="flex justify-center gap-4 sm:gap-6 mt-6 opacity-30">
             <Zap className="sm:w-5 sm:h-5 w-4 h-4" /> <Brain className="sm:w-5 sm:h-5 w-4 h-4" /> <Rocket className="sm:w-5 sm:h-5 w-4 h-4" /> <Sparkles className="sm:w-5 sm:h-5 w-4 h-4" />
           </div>

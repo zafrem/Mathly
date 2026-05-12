@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { mathlyAudio } from '@/lib/audio';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { OperationType } from '@/lib/math-engine';
+import { useTheme } from '@/lib/theme-context';
 import confetti from 'canvas-confetti';
 
 interface ScoreEntry {
@@ -25,6 +26,7 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t } = useLanguage();
+  const { theme } = useTheme();
   
   const digits = parseInt(searchParams.get('digits') || '2');
   const initialTime = parseInt(searchParams.get('time') || '60');
@@ -110,9 +112,7 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
   // Timer Logic
   useEffect(() => {
     if (initialTime === 0 || showConcept || countdown > 0 || isFinished || isPaused) return;
-    
     const interval = isBooster ? 2000 : 1000;
-    
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -198,27 +198,27 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
   };
 
   const categoryColor = useMemo(() => {
-    if (isBooster) return 'rgba(245, 158, 11, 0.15)'; // Golden for booster
-    if (type.includes('addition')) return 'rgba(59, 130, 246, 0.1)';
-    if (type.includes('subtraction')) return 'rgba(239, 68, 68, 0.1)';
-    if (type.includes('multiplication')) return 'rgba(244, 63, 94, 0.1)';
-    return 'rgba(16, 185, 129, 0.1)';
-  }, [type, isBooster]);
+    if (isBooster) return 'rgba(245, 158, 11, 0.15)'; 
+    if (type.includes('addition')) return theme === 'dark' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.1)';
+    if (type.includes('subtraction')) return theme === 'dark' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+    if (type.includes('multiplication')) return theme === 'dark' ? 'rgba(244, 63, 94, 0.1)' : 'rgba(244, 63, 94, 0.1)';
+    return theme === 'dark' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.1)';
+  }, [type, isBooster, theme]);
 
   if (isFinished) {
     const beatBot = score > botScore;
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-2 sm:p-4">
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md w-full bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-12 shadow-2xl text-center border border-gray-100">
-          <div className="w-16 h-16 sm:w-24 sm:h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-8"><Trophy className="text-yellow-500 sm:w-12 sm:h-12 w-8 h-8" /></div>
-          <h1 className="text-2xl sm:text-4xl font-black text-gray-800 mb-1 sm:mb-2">{t.practice.sprintOver}</h1>
-          <p className="text-sm sm:text-base text-gray-500 mb-6 sm:mb-8">{userName}, {t.practice.youScored}</p>
-          <div className="text-4xl sm:text-6xl font-black text-blue-500 mb-3 sm:mb-4 tabular-nums">{score.toLocaleString()}</div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-2 sm:p-4 transition-colors duration-300">
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md w-full bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl p-6 sm:p-12 shadow-2xl text-center border border-gray-100 dark:border-gray-800">
+          <div className="w-16 h-16 sm:w-24 sm:h-24 bg-yellow-100 dark:bg-yellow-900/20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-8"><Trophy className="text-yellow-500 sm:w-12 sm:h-12 w-8 h-8" /></div>
+          <h1 className="text-2xl sm:text-4xl font-black text-gray-800 dark:text-white mb-1 sm:mb-2">{t.practice.sprintOver}</h1>
+          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-6 sm:mb-8">{userName}, {t.practice.youScored}</p>
+          <div className="text-4xl sm:text-6xl font-black text-blue-500 dark:text-blue-400 mb-3 sm:mb-4 tabular-nums">{score.toLocaleString()}</div>
           
           <div className="flex flex-col gap-2 sm:gap-3 mb-6 sm:mb-8">
-            {score > personalBest && personalBest > 0 && <div className="text-orange-500 font-bold flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-base"><Trophy className="sm:w-4 sm:h-4 w-3.5 h-3.5"/> {t.practice.newPersonalBest}</div>}
+            {score > personalBest && personalBest > 0 && <div className="text-orange-500 dark:text-orange-400 font-bold flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-base"><Trophy className="sm:w-4 sm:h-4 w-3.5 h-3.5"/> {t.practice.newPersonalBest}</div>}
             {initialTime > 0 && (
-              <div className={cn("font-bold flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-base", beatBot ? "text-green-500" : "text-red-400")}>
+              <div className={cn("font-bold flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-base", beatBot ? "text-green-500 dark:text-green-400" : "text-red-400 dark:text-red-400")}>
                 {beatBot ? <Zap className="sm:w-4 sm:h-4 w-3.5 h-3.5"/> : <Bot className="sm:w-4 sm:h-4 w-3.5 h-3.5"/>}
                 {beatBot ? t.practice.beatBot : t.practice.lostToBot}
               </div>
@@ -226,12 +226,12 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
           </div>
 
           <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-8 sm:mb-12">
-            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl sm:rounded-2xl"><span className="block text-gray-400 text-[10px] sm:text-sm font-bold uppercase mb-0.5 sm:mb-1">{t.practice.solved}</span><span className="text-xl sm:text-3xl font-black text-gray-800">{solved}</span></div>
-            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl sm:rounded-2xl"><span className="block text-gray-400 text-[10px] sm:text-sm font-bold uppercase mb-0.5 sm:mb-1">{t.practice.maxStreak}</span><span className="text-xl sm:text-3xl font-black text-gray-800">{streak}</span></div>
+            <div className="bg-gray-50 dark:bg-gray-800 p-4 sm:p-6 rounded-xl sm:rounded-2xl"><span className="block text-gray-400 dark:text-gray-500 text-[10px] sm:text-sm font-bold uppercase mb-0.5 sm:mb-1">{t.practice.solved}</span><span className="text-xl sm:text-3xl font-black text-gray-800 dark:text-white">{solved}</span></div>
+            <div className="bg-gray-50 dark:bg-gray-800 p-4 sm:p-6 rounded-xl sm:rounded-2xl"><span className="block text-gray-400 dark:text-gray-500 text-[10px] sm:text-sm font-bold uppercase mb-0.5 sm:mb-1">{t.practice.maxStreak}</span><span className="text-xl sm:text-3xl font-black text-gray-800 dark:text-white">{streak}</span></div>
           </div>
           <div className="flex flex-col gap-3 sm:gap-4">
-            <button onClick={() => window.location.reload()} className="w-full py-3 sm:py-4 bg-blue-500 text-white rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg hover:bg-blue-600 flex items-center justify-center gap-2"><RotateCcw className="sm:w-5 sm:h-5 w-4.5 h-4.5" /> {t.practice.tryAgain}</button>
-            <button onClick={() => router.push(backPath)} className="w-full py-3 sm:py-4 bg-gray-100 text-gray-600 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg hover:bg-gray-200">{t.practice.backToSelection}</button>
+            <button onClick={() => window.location.reload()} className="w-full py-3 sm:py-4 bg-blue-500 dark:bg-blue-600 text-white rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg hover:bg-blue-600 dark:hover:bg-blue-700 flex items-center justify-center gap-2 transition-colors"><RotateCcw className="sm:w-5 sm:h-5 w-4.5 h-4.5" /> {t.practice.tryAgain}</button>
+            <button onClick={() => router.push(backPath)} className="w-full py-3 sm:py-4 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">{t.practice.backToSelection}</button>
           </div>
         </motion.div>
       </div>
@@ -241,9 +241,9 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
   return (
     <motion.div 
       animate={{ 
-        backgroundColor: categoryColor,
+        backgroundColor: theme === 'dark' ? '#030712' : categoryColor,
       }}
-      className="min-h-screen py-6 sm:py-12 px-2 sm:px-4 relative overflow-hidden"
+      className="min-h-screen py-6 sm:py-12 px-2 sm:px-4 relative overflow-hidden transition-colors duration-500"
     >
       <AnimatePresence>
         {showConcept && <ConceptCard type={type} onStart={() => setShowConcept(false)} />}
@@ -253,33 +253,33 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
         animate={isError ? { x: [0, -10, 10, -5, 5, 0] } : { x: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <div className="fixed top-0 left-0 w-full z-50 bg-white/50 backdrop-blur-sm border-b border-gray-100 py-1 sm:py-2">
+        <div className="fixed top-0 left-0 w-full z-50 bg-white/50 dark:bg-gray-950/50 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800 py-1 sm:py-2">
           <div className="max-w-4xl mx-auto px-4 space-y-1.5 sm:space-y-3">
             {personalBest > 0 && (
-              <div className="relative h-2 sm:h-3 bg-gray-100 rounded-full overflow-hidden">
+              <div className="relative h-2 sm:h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                 <motion.div 
                   className="absolute inset-y-0 left-0 bg-blue-500 rounded-full shadow-[0_0_12px_rgba(59,130,246,0.5)]" 
                   animate={{ width: `${Math.min((score / personalBest) * 100, 100)}%` }} 
                 />
                 <div className="absolute inset-y-0 left-0 w-full flex items-center px-2 pointer-events-none">
                   <div className="flex items-center gap-1 sm:gap-2">
-                    <Ghost className="text-blue-600 sm:w-3.5 sm:h-3.5 w-2.5 h-2.5" fill="currentColor" />
-                    <span className="text-[8px] sm:text-[10px] font-black text-blue-700 uppercase tracking-tighter sm:tracking-widest">{t.practice.ghostPace}</span>
+                    <Ghost className="text-blue-600 dark:text-blue-400 sm:w-3.5 sm:h-3.5 w-2.5 h-2.5" fill="currentColor" />
+                    <span className="text-[8px] sm:text-[10px] font-black text-blue-700 dark:text-blue-300 uppercase tracking-tighter sm:tracking-widest">{t.practice.ghostPace}</span>
                   </div>
                 </div>
               </div>
             )}
             
             {initialTime > 0 && (
-              <div className="relative h-2 sm:h-3 bg-gray-100 rounded-full overflow-hidden">
+              <div className="relative h-2 sm:h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                 <motion.div 
                   className="absolute inset-y-0 left-0 bg-red-400 rounded-full shadow-[0_0_12px_rgba(248,113,113,0.5)]" 
                   animate={{ width: `${Math.min((botScore / Math.max(score, personalBest, botScore, 1000)) * 100, 100)}%` }} 
                 />
                 <div className="absolute inset-y-0 left-0 w-full flex items-center px-2 pointer-events-none">
                   <div className="flex items-center gap-1 sm:gap-2">
-                    <Bot className="text-red-700 sm:w-3.5 sm:h-3.5 w-2.5 h-2.5" fill="currentColor" />
-                    <span className="text-[8px] sm:text-[10px] font-black text-red-800 uppercase tracking-tighter sm:tracking-widest">{t.practice.rivalBot}</span>
+                    <Bot className="text-red-700 dark:text-red-400 sm:w-3.5 sm:h-3.5 w-2.5 h-2.5" fill="currentColor" />
+                    <span className="text-[8px] sm:text-[10px] font-black text-red-800 dark:text-red-300 uppercase tracking-tighter sm:tracking-widest">{t.practice.rivalBot}</span>
                   </div>
                 </div>
               </div>
@@ -289,14 +289,14 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
 
         <div className="max-w-4xl mx-auto relative mt-10 sm:mt-12">
           <header className="flex items-center justify-between mb-8 sm:mb-12">
-            <button onClick={() => router.push(backPath)} className="p-2 sm:p-3 rounded-full bg-white shadow-sm border border-gray-100 text-gray-600 hover:bg-gray-50"><ArrowLeft className="sm:w-6 sm:h-6 w-5 h-5" /></button>
+            <button onClick={() => router.push(backPath)} className="p-2 sm:p-3 rounded-full bg-white dark:bg-gray-900 shadow-sm border border-gray-100 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"><ArrowLeft className="sm:w-6 sm:h-6 w-5 h-5" /></button>
             <div className="flex gap-2 sm:gap-4 items-center">
               {initialTime > 0 && countdown === 0 && (
                 <div className="relative">
                   <div className={cn(
                     "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full border transition-all",
-                    isPaused ? "bg-gray-900 border-gray-900 text-white shadow-lg" : isBooster ? "bg-amber-400 border-amber-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.4)]" : "bg-white border-gray-100 text-gray-700 shadow-sm",
-                    timeLeft < 10 && !isBooster && !isPaused ? "text-red-500 animate-pulse border-red-100" : ""
+                    isPaused ? "bg-gray-900 dark:bg-white border-gray-900 dark:border-white text-white dark:text-black shadow-lg" : isBooster ? "bg-amber-400 border-amber-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.4)]" : "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 text-gray-700 dark:text-gray-300 shadow-sm",
+                    timeLeft < 10 && !isBooster && !isPaused ? "text-red-500 dark:text-red-400 animate-pulse border-red-100 dark:border-red-900/30" : ""
                   )}>
                     <Timer className="sm:w-5 sm:h-5 w-4 h-4" /><span className="font-bold text-sm sm:text-base">{formatTime(timeLeft)}</span>
                     {isPaused && <span className="ml-2 text-[10px] font-black uppercase tracking-widest">PAUSED</span>}
@@ -308,7 +308,7 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: -30 }}
                         exit={{ opacity: 0 }}
-                        className="absolute inset-0 flex items-center justify-center text-green-500 font-black text-sm pointer-events-none"
+                        className="absolute inset-0 flex items-center justify-center text-green-500 dark:text-green-400 font-black text-sm pointer-events-none"
                       >
                         +{bonusAdded}s
                       </motion.div>
@@ -320,14 +320,14 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
                 <>
                   <div className={cn(
                     "flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full border transition-all relative overflow-hidden",
-                    isBooster ? "bg-amber-500 border-amber-600 text-white shadow-lg" : "bg-white border-gray-100 shadow-sm"
+                    isBooster ? "bg-amber-500 border-amber-600 text-white shadow-lg" : "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 shadow-sm"
                   )}>
                     {isBooster ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 4, ease: "linear" }} className="text-white"><Zap className="sm:w-4.5 sm:h-4.5 w-3.5 h-3.5" fill="currentColor" /></motion.div> : combo > 1 && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-1 text-orange-500 font-black text-xs sm:text-base"><Flame className="sm:w-4.5 sm:h-4.5 w-3.5 h-3.5" fill="currentColor" /> x{1 + (combo * 0.5)}</motion.div>}
-                    <span className={cn("font-black tabular-nums text-sm sm:text-base", isBooster ? "text-white" : "text-blue-500")}>{score.toLocaleString()}</span>
+                    <span className={cn("font-black tabular-nums text-sm sm:text-base", isBooster ? "text-white" : "text-blue-500 dark:text-blue-400")}>{score.toLocaleString()}</span>
                   </div>
                   <div className={cn(
                     "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full border transition-all",
-                    isBooster ? "bg-white border-amber-400 text-amber-600 shadow-sm" : "bg-white border-gray-100 text-gray-700 shadow-sm"
+                    isBooster ? "bg-white border-amber-400 text-amber-600 shadow-sm" : "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 text-gray-700 dark:text-gray-300 shadow-sm"
                   )}>
                     <Zap className={cn(isBooster ? "text-amber-500" : "text-yellow-500", "sm:w-5 sm:h-5 w-4 h-4")} />
                     <span className="font-bold text-sm sm:text-base">{streak}</span>
@@ -341,21 +341,21 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
             <AnimatePresence mode="wait">
               {countdown > 0 ? (
                 <motion.div key="countdown" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 2 }} className="absolute inset-0 flex flex-col items-center justify-center z-50 py-10 sm:py-20">
-                  <motion.div key={countdown} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-[8rem] sm:text-[12rem] font-black text-blue-500 drop-shadow-2xl leading-none">{countdown}</motion.div>
-                  <p className="text-lg sm:text-2xl font-bold text-gray-400 uppercase tracking-[0.3em] sm:tracking-[0.5em] mt-4">{t.practice.getReady}</p>
+                  <motion.div key={countdown} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-[8rem] sm:text-[12rem] font-black text-blue-500 dark:text-blue-400 drop-shadow-2xl leading-none">{countdown}</motion.div>
+                  <p className="text-lg sm:text-2xl font-bold text-gray-400 dark:text-gray-600 uppercase tracking-[0.3em] sm:tracking-[0.5em] mt-4">{t.practice.getReady}</p>
                 </motion.div>
               ) : (
                 <motion.div key="practice-content">
                   <div className="text-center mb-8 sm:mb-12 px-4">
-                    <h1 className="text-2xl sm:text-3xl font-black text-gray-800 capitalize mb-1 sm:mb-2 leading-tight">
+                    <h1 className="text-2xl sm:text-3xl font-black text-gray-800 dark:text-white capitalize mb-1 sm:mb-2 leading-tight">
                       {t.practiceInstructions[type as keyof typeof t.practiceInstructions] || type.replace('_', ' ')}
                     </h1>
-                    <p className="text-gray-500 text-sm sm:text-base">{userName} &bull; {digits} {t.selection.digits}</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base">{userName} &bull; {digits} {t.selection.digits}</p>
                     {isBooster && (
                       <motion.div 
                         initial={{ opacity: 0, scale: 0.5 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200"
+                        className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/50"
                       >
                         <Zap size={14} fill="currentColor" className="animate-pulse" />
                         <span className="font-black text-xs uppercase tracking-widest">{t.practice.booster} ACTIVE</span>
