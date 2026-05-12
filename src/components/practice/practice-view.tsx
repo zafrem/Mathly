@@ -65,7 +65,10 @@ export default function PracticeView({ params }: { params: Promise<{ type: strin
   const [isFinished, setIsFinished] = useState(false);
   const [countdown, setCountdown] = useState(3);
   const [isError, setIsError] = useState(false);
-  const [showConcept, setShowConcept] = useState(() => !!(t.concepts as Record<string, unknown>)[type]);
+  const [showConcept, setShowConcept] = useState(() => {
+    const concept = (t.concepts as unknown as Record<string, unknown>)[type];
+    return !!concept && typeof concept !== 'string';
+  });
   const [bonusAdded, setBonusAdded] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 

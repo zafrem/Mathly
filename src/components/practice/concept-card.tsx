@@ -11,9 +11,9 @@ interface ConceptCardProps {
 
 export default function ConceptCard({ type, onStart }: ConceptCardProps) {
   const { t } = useLanguage();
-  const concept = (t.concepts as Record<string, { formula: string; points: string[] }>)[type];
+  const concept = (t.concepts as unknown as Record<string, { formula: string; points: string[] }>)[type];
 
-  if (!concept) return null;
+  if (!concept || typeof concept === 'string') return null;
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
