@@ -15,6 +15,16 @@ export function generateStaticParams() {
     { type: 'fraction_subtraction' },
     { type: 'fraction_multiplication' },
     { type: 'fraction_division' },
+    // Level 2
+    { type: 'integer_addition' },
+    { type: 'integer_multiplication' },
+    { type: 'equation_simple' },
+    { type: 'exponent_basic' },
+    { type: 'square_root' },
+    // Level 3
+    { type: 'quadratic_vertex' },
+    { type: 'log_basic' },
+    { type: 'exp_neural' },
   ];
 }
 

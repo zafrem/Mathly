@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Plus, Minus, X, Divide, Zap, Brain, Rocket, Sparkles, User, Trophy, Superscript, Radical } from 'lucide-react';
@@ -25,100 +25,242 @@ interface ScoreEntry {
   name: string;
   score: number;
   type: string;
+  digits: number;
   date: string;
 }
 
-export default function LandingPage() {
-  const [digits, setDigits] = useState(2);
-  const [timeLimit, setTimeLimit] = useState(60);
-  const [userName, setUserName] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem('mathly-user') || '' : ''));
-  const [scores] = useState<ScoreEntry[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = JSON.parse(localStorage.getItem('mathly-scores') || '[]');
-      return saved.sort((a: ScoreEntry, b: ScoreEntry) => b.score - a.score).slice(0, 5);
-    }
-    return [];
-  });
+export default function LauncherPage() {
+  const { t } = useLanguage();
+  const [userName, setUserName] = useState('');
+  const [scores, setScores] = useState<ScoreEntry[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
+
+  const levels = [
+    { 
+      id: 1, 
+      title: t.levels.l1.title, 
+      subtitle: t.levels.l1.subtitle,
+      description: t.levels.l1.description,
+      icon: Calculator, 
+      color: 'bg-blue-500',
+      type: t.levels.l1.type,
+      status: 'active'
+    },
+    { 
+      id: 2, 
+      title: t.levels.l2.title, 
+      subtitle: t.levels.l2.subtitle,
+      description: t.levels.l2.description,
+      icon: Binary, 
+      color: 'bg-indigo-500',
+      type: t.levels.l2.type,
+      status: 'active'
+    },
+    { 
+      id: 3, 
+      title: t.levels.l3.title, 
+      subtitle: t.levels.l3.subtitle,
+      description: t.levels.l3.description,
+      icon: TrendingUp, 
+      color: 'bg-emerald-500',
+      type: t.levels.l3.type,
+      status: 'active'
+    },
+    { 
+      id: 4, 
+      title: t.levels.l4.title, 
+      subtitle: t.levels.l4.subtitle,
+      description: t.levels.l4.description,
+      icon: Dices, 
+      color: 'bg-orange-500',
+      type: t.levels.l4.type,
+      status: 'locked'
+    },
+    { 
+      id: 5, 
+      title: t.levels.l5.title, 
+      subtitle: t.levels.l5.subtitle,
+      description: t.levels.l5.description,
+      icon: Grid3X3, 
+      color: 'bg-rose-500',
+      type: t.levels.l5.type,
+      status: 'locked'
+    },
+    { 
+      id: 6, 
+      title: t.levels.l6.title, 
+      subtitle: t.levels.l6.subtitle,
+      description: t.levels.l6.description,
+      icon: Layers, 
+      color: 'bg-purple-500',
+      type: t.levels.l6.type,
+      status: 'locked'
+    },
+    { 
+      id: 7, 
+      title: t.levels.l7.title, 
+      subtitle: t.levels.l7.subtitle,
+      description: t.levels.l7.description,
+      icon: Activity, 
+      color: 'bg-pink-500',
+      type: t.levels.l7.type,
+      status: 'locked'
+    },
+    { 
+      id: 8, 
+      title: t.levels.l8.title, 
+      subtitle: t.levels.l8.subtitle,
+      description: t.levels.l8.description,
+      icon: BrainCircuit, 
+      color: 'bg-cyan-600',
+      type: t.levels.l8.type,
+      status: 'locked'
+    },
+  ];
+
+  useEffect(() => {
+    const savedName = localStorage.getItem('mathly-user') || '';
+    const savedScoresData = localStorage.getItem('mathly-scores');
+    const savedScores: ScoreEntry[] = savedScoresData ? JSON.parse(savedScoresData) : [];
+    
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setUserName(savedName);
+    setScores(savedScores.sort((a, b) => b.score - a.score).slice(0, 5));
+    setIsMounted(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, []);
 
   const handleNameChange = (name: string) => {
     setUserName(name);
-    if (typeof window !== 'undefined') localStorage.setItem('mathly-user', name);
+    localStorage.setItem('mathly-user', name);
   };
 
+  const isActive = userName.trim().length > 0;
+
   return (
-    <div className="min-h-screen bg-white overflow-hidden pb-20">
+    <div className="min-h-screen bg-white dark:bg-gray-950 overflow-hidden pb-10 sm:pb-20 font-sans transition-colors duration-300">
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
-        <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="absolute -top-24 -left-24 text-blue-50/50"><Brain size={300} /></motion.div>
-        <motion.div animate={{ y: [0, -20, 0] }} transition={{ duration: 5, repeat: Infinity }} className="absolute top-1/4 right-12 text-yellow-50/50"><Zap size={150} /></motion.div>
-        <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 8, repeat: Infinity }} className="absolute bottom-1/4 left-1/4 text-purple-50/50"><Sparkles size={200} /></motion.div>
+        <motion.div animate={{ rotate: 360 }} transition={{ duration: 40, repeat: Infinity, ease: "linear" }} className="absolute -top-24 -left-24 text-blue-50/30 dark:text-blue-900/10"><Brain className="sm:w-[400px] sm:h-[400px] w-[300px] h-[300px]" /></motion.div>
+        <motion.div animate={{ y: [0, -40, 0], opacity: [0.1, 0.3, 0.1] }} transition={{ duration: 8, repeat: Infinity }} className="absolute bottom-1/4 right-12 text-blue-50/50 dark:text-blue-900/10"><Rocket className="sm:w-[250px] sm:h-[250px] w-[150px] h-[150px]" /></motion.div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-20 relative">
-        <header className="text-center mb-16">
-          <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-blue-600 font-bold mb-6">
-            <Rocket size={20} />
-            <span>FRACTIONS NOW LIVE</span>
+      <div className="max-w-6xl mx-auto px-4 py-10 sm:py-20 relative">
+        <header className="text-center mb-10 sm:mb-16">
+          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="inline-block px-4 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-bold text-xs sm:text-sm mb-4">
+            {t.launcher.tag}
           </motion.div>
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-7xl font-black text-gray-900 mb-6 tracking-tight">Math<span className="text-blue-500">ly</span></motion.h1>
-          <div className="max-w-md mx-auto mb-12 relative group">
-            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={24} />
-            <input
-              type="text"
-              placeholder="Enter your name to rank..."
-              value={userName}
-              onChange={(e) => handleNameChange(e.target.value)}
-              className="w-full pl-14 pr-6 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50 focus:bg-white focus:border-blue-400 outline-none text-xl font-bold text-gray-900 transition-all shadow-inner"
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-6xl sm:text-8xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">
+            Math<span className="text-blue-500">ly</span>
+          </motion.h1>
+          
+          <div className="max-w-md mx-auto mb-4 relative group px-2 sm:px-0">
+            <User className={cn("absolute left-6 sm:left-4 top-1/2 -translate-y-1/2 transition-colors sm:w-6 sm:h-6 w-5 h-5", isActive ? "text-blue-500" : "text-gray-400 dark:text-gray-600")} />
+            <input 
+              type="text" 
+              placeholder={t.launcher.placeholder} 
+              value={userName} 
+              onChange={(e) => handleNameChange(e.target.value)} 
+              className={cn(
+                "w-full pl-12 sm:pl-14 pr-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 outline-none text-lg sm:text-xl font-bold transition-all shadow-inner",
+                isActive 
+                  ? "border-blue-400 bg-white dark:bg-gray-900 text-black dark:text-white shadow-lg" 
+                  : "border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 text-black dark:text-white focus:border-blue-200"
+              )} 
             />
           </div>
-          <div className="flex flex-wrap justify-center gap-8 mb-16">
-            <div className="bg-gray-50 p-6 rounded-3xl border-2 border-gray-100">
-              <span className="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Difficulty</span>
-              <div className="flex gap-2">
-                {[1, 2, 3, 4].map((d) => (
-                  <button key={d} onClick={() => setDigits(d)} className={cn("w-12 h-12 rounded-xl font-bold transition-all", digits === d ? "bg-blue-500 text-white shadow-lg scale-110" : "bg-white text-gray-400 hover:bg-gray-100")}>{d}</button>
-                ))}
-              </div>
-            </div>
-            <div className="bg-gray-50 p-6 rounded-3xl border-2 border-gray-100">
-              <span className="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Time Limit</span>
-              <div className="flex gap-2">
-                {[30, 60, 120, 0].map((t) => (
-                  <button key={t} onClick={() => setTimeLimit(t)} className={cn("px-4 h-12 rounded-xl font-bold transition-all", timeLimit === t ? "bg-purple-500 text-white shadow-lg scale-110" : "bg-white text-gray-400 hover:bg-gray-100")}>{t === 0 ? '∞' : `${t}s`}</button>
-                ))}
-              </div>
-            </div>
-          </div>
+          <AnimatePresence>
+            {isMounted && !isActive && (
+              <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="text-blue-500 font-bold text-xs sm:text-sm mb-8 sm:mb-12 animate-pulse">
+                {t.launcher.unlockHint}
+              </motion.p>
+            )}
+          </AnimatePresence>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
-          {categories.map((cat, index) => (
-            <motion.div key={cat.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
-              <Link href={userName ? `/practice/${cat.id}?digits=${digits}&time=${timeLimit}&user=${encodeURIComponent(userName)}` : '#'} onClick={() => !userName && alert('Please enter your name first!')} className={cn("group relative block p-8 rounded-3xl transition-all duration-300 border-2", userName ? "bg-gray-50 hover:bg-white hover:shadow-2xl hover:border-gray-100" : "bg-gray-100 opacity-50 cursor-not-allowed")}>
-                <div className={`${cat.color} w-16 h-16 rounded-2xl flex items-center justify-center text-white mb-6 transform group-hover:scale-110 group-hover:rotate-6 transition-transform`}><cat.icon size={32} /></div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-2">{cat.name}</h3>
-                <p className="text-gray-500 text-sm">Practice speed and accuracy.</p>
-              </Link>
-            </motion.div>
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 mb-16 sm:mb-24">
+          {levels.map((level, idx) => {
+            const isLocked = level.status === 'locked' || !isActive;
+            const Icon = level.icon;
+
+            return (
+              <motion.div key={level.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} whileHover={!isLocked ? { y: -5 } : {}}>
+                <Link href={!isLocked ? `/level/${level.id}` : '#'} className={cn(
+                  "block h-full p-6 sm:p-8 rounded-2xl sm:rounded-[2rem] border-2 transition-all relative overflow-hidden group",
+                  isLocked 
+                    ? "bg-gray-50 dark:bg-gray-900/40 border-transparent cursor-not-allowed opacity-75" 
+                    : "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 hover:border-blue-200 dark:hover:border-blue-500/50 hover:shadow-xl dark:shadow-blue-900/10"
+                )}>
+                  <div className="flex justify-between items-start mb-4 sm:mb-6">
+                    <div className={cn("w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center text-white transition-transform duration-500", isLocked ? "bg-gray-300 dark:bg-gray-700" : level.color + " group-hover:rotate-12")}>
+                      <Icon className="sm:w-8 sm:h-8 w-6 h-6" />
+                    </div>
+                    {!isLocked && (
+                      <div className="flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-black text-[8px] sm:text-[10px] uppercase tracking-wider">
+                        {level.type}
+                      </div>
+                    )}
+                    {isLocked && <Lock className="sm:w-5 sm:h-5 w-4 h-4 text-gray-300 dark:text-gray-700" />}
+                  </div>
+                  <h3 className={cn("text-xl sm:text-2xl font-black mb-1 sm:mb-2 transition-colors", isLocked ? "text-gray-400 dark:text-gray-600" : "text-gray-900 dark:text-white group-hover:text-blue-500 dark:group-hover:text-blue-400")}>{level.title}</h3>
+                  <p className="text-gray-400 dark:text-gray-500 text-[10px] sm:text-sm font-bold uppercase tracking-widest mb-3 sm:mb-4">{level.subtitle}</p>
+                  <p className={cn("text-xs sm:text-sm leading-relaxed", isLocked ? "text-gray-300 dark:text-gray-700" : "text-gray-500 dark:text-gray-400")}>{level.description}</p>
+                  {!isLocked && (
+                    <div className="mt-6 sm:mt-8 flex items-center gap-2 text-blue-500 dark:text-blue-400 font-bold text-sm sm:text-base group-hover:translate-x-2 transition-transform">
+                      <span>{t.launcher.startTraining}</span>
+                      <Rocket className="sm:w-4 sm:h-4 w-3.5 h-3.5" />
+                    </div>
+                  )}
+                  {!isLocked && (
+                    <div className="absolute -bottom-10 -right-10 opacity-[0.03] dark:opacity-[0.05] group-hover:opacity-[0.08] dark:group-hover:opacity-[0.1] transition-opacity">
+                      <Icon className="sm:w-[150px] sm:h-[150px] w-[120px] h-[120px]" />
+                    </div>
+                  )}
+                </Link>
+              </motion.div>
+            );
+          })}
         </div>
 
-        <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto bg-gray-900 rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-8 opacity-10"><Trophy size={120} /></div>
-          <h2 className="text-3xl font-black mb-8 flex items-center gap-3"><Trophy className="text-yellow-400" /> Hall of Speed</h2>
-          <div className="space-y-4">
-            {scores.length > 0 ? scores.map((s, i) => (
-              <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                <div className="flex items-center gap-4">
-                  <span className={cn("w-8 h-8 rounded-full flex items-center justify-center font-black", i === 0 ? "bg-yellow-400 text-black" : "bg-white/10")}>{i + 1}</span>
-                  <span className="font-bold text-lg">{s.name}</span>
-                  <span className="text-xs uppercase px-2 py-1 rounded bg-white/10 text-gray-400">{s.type}</span>
+        <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto bg-gray-900 dark:bg-blue-950/40 rounded-3xl sm:rounded-[3rem] p-6 sm:p-12 text-white shadow-2xl relative overflow-hidden border border-white/5 dark:border-blue-900/30">
+          <div className="absolute top-0 right-0 p-4 sm:p-8 opacity-10"><Trophy className="sm:w-[160px] sm:h-[160px] w-[100px] h-[100px]" /></div>
+          <div className="relative z-10">
+            <h2 className="text-2xl sm:text-4xl font-black mb-6 sm:mb-10 flex items-center gap-3 sm:gap-4">
+              <Trophy className="text-yellow-400 sm:w-10 sm:h-10 w-6 h-6" /> 
+              {t.launcher.topTrainees}
+            </h2>
+            <div className="space-y-3 sm:space-y-4">
+              {scores.length > 0 ? scores.map((s: ScoreEntry, i: number) => (
+                <div key={i} className="flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/5 dark:bg-white/5 border border-white/10 dark:border-white/10 hover:bg-white/10 transition-colors">
+                  <div className="flex items-center gap-4 sm:gap-6">
+                    <span className={cn("w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black text-sm sm:text-lg", i === 0 ? "bg-yellow-400 text-black" : "bg-white/10")}>{i + 1}</span>
+                    <div>
+                      <span className="font-bold text-base sm:text-xl block">{s.name}</span>
+                      <span className="text-[8px] sm:text-[10px] uppercase px-2 py-0.5 rounded bg-white/10 text-gray-400">
+                        {t.operations[s.type as keyof typeof t.operations] || s.type.replace('_', ' ')} &bull; {s.digits}d
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xl sm:text-3xl font-black text-blue-400 block">{Math.floor(s.score).toLocaleString()}</span>
+                    <span className="text-[8px] sm:text-[10px] text-gray-500 uppercase font-bold tracking-widest">{t.launcher.points}</span>
+                  </div>
                 </div>
-                <span className="text-2xl font-black text-blue-400">{Math.floor(s.score).toLocaleString()}</span>
-              </div>
-            )) : <p className="text-center text-gray-500 py-10 font-bold uppercase tracking-widest">No rankings yet. Start sprinting!</p>}
+              )) : (
+                <div className="text-center py-6 sm:py-10">
+                  <p className="text-gray-500 font-bold uppercase tracking-[0.2em] mb-4 text-xs sm:text-sm">{t.launcher.noRankings}</p>
+                  <Rocket className="mx-auto text-gray-800 dark:text-gray-700 animate-bounce sm:w-12 sm:h-12 w-8 h-8" />
+                </div>
+              )}
+            </div>
           </div>
         </motion.div>
-        <footer className="mt-32 text-center text-gray-400"><p>2026 zafrem - Computational Repetition Done Right</p></footer>
+
+        <footer className="mt-20 sm:mt-40 text-center">
+          <p className="text-gray-400 dark:text-gray-500 font-medium text-xs sm:text-base">© 2026 Mathly - {t.launcher.footer}</p>
+          <div className="flex justify-center gap-4 sm:gap-6 mt-6 opacity-30">
+            <Zap className="sm:w-5 sm:h-5 w-4 h-4" /> <Brain className="sm:w-5 sm:h-5 w-4 h-4" /> <Rocket className="sm:w-5 sm:h-5 w-4 h-4" /> <Sparkles className="sm:w-5 sm:h-5 w-4 h-4" />
+          </div>
+        </footer>
       </div>
     </div>
   );
