@@ -178,7 +178,9 @@ export const translations = {
       timeSlow: "Time Slow",
       showAnswer: "Show Answer",
       gotIt: "Got it, Next",
-      solution: "Solution"
+      solution: "Solution",
+      steps: "Steps",
+      pressForSteps: "Press H for steps"
     }
   },
   ko: {
@@ -356,7 +358,9 @@ export const translations = {
       timeSlow: "시간 지연",
       showAnswer: "정답 보기",
       gotIt: "알겠어요, 다음 문제",
-      solution: "해설"
+      solution: "해설",
+      steps: "풀이 단계",
+      pressForSteps: "H를 눌러 풀이 보기"
     }
   }
 };

@@ -2,24 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Plus, Minus, X, Divide, Zap, Brain, Rocket, Sparkles, User, Trophy, Superscript, Radical } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Zap, Brain, Rocket, Sparkles, User, Trophy, Lock, 
+  Calculator, Binary, Grid3X3,
+  TrendingUp, Dices, Layers, Activity, BrainCircuit
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const categories = [
-  { id: 'addition', name: 'Addition', icon: Plus, color: 'bg-blue-500' },
-  { id: 'subtraction', name: 'Subtraction', icon: Minus, color: 'bg-red-500' },
-  { id: 'multiplication', name: 'Multiplication', icon: X, color: 'bg-green-500' },
-  { id: 'division', name: 'Division', icon: Divide, color: 'bg-purple-500' },
-  { id: 'gcd', name: 'GCD', icon: Brain, color: 'bg-indigo-500' },
-  { id: 'lcm', name: 'LCM', icon: Sparkles, color: 'bg-orange-500' },
-  { id: 'power', name: 'Powers', icon: Superscript, color: 'bg-amber-500' },
-  { id: 'root', name: 'Roots', icon: Radical, color: 'bg-lime-600' },
-  { id: 'fraction_addition', name: 'Frac +', icon: Plus, color: 'bg-teal-500' },
-  { id: 'fraction_subtraction', name: 'Frac -', icon: Minus, color: 'bg-cyan-500' },
-  { id: 'fraction_multiplication', name: 'Frac ×', icon: X, color: 'bg-rose-500' },
-  { id: 'fraction_division', name: 'Frac ÷', icon: Divide, color: 'bg-emerald-500' },
-];
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface ScoreEntry {
   name: string;

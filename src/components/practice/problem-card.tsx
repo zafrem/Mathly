@@ -24,6 +24,7 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure, onShow
   const [userDenom, setUserDenom] = useState<string>('');
   const [carries, setCarries] = useState<string[]>(() => new Array(problem.answer.toString().length).fill(''));
   const [status, setStatus] = useState<'idle' | 'correct' | 'incorrect'>('idle');
+  const [showSolution, setShowSolution] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const startTime = useRef<number>(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -131,19 +132,16 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure, onShow
   const isVertical = digits >= 2 && (type === 'addition' || type === 'subtraction');
   const isFactorization = type === 'gcd' || type === 'lcm';
   const isFraction = type.startsWith('fraction_');
-<<<<<<< HEAD
   const isPower = type === 'power';
   const isRoot = type === 'root';
-=======
   const isExponent = type === 'exponent_basic' || type === 'exp_neural';
   const isSquareRoot = type === 'square_root';
   const isEquation = !!problem.equationVar;
   const isQuadratic = type === 'quadratic_vertex';
   const isLog = type === 'log_basic';
-  
+
   const hasSolution = !!(t.solutions as Record<string, string>)[type];
-  
->>>>>>> bdd384090007b58f408e84d8bd95100a25a04de5
+
   const maxLen = Math.max(problem.num1.toString().length, problem.num2.toString().length);
   const num1Str = problem.num1.toString().padStart(maxLen, ' ');
   const num2Str = problem.num2.toString().padStart(maxLen, ' ');
@@ -277,19 +275,19 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure, onShow
         </div>
       ) : isPower ? (
         <div className="text-right mb-8">
-          <div className="text-6xl font-black text-gray-800 tracking-tight flex items-start justify-end">
+          <div className="text-6xl font-black text-gray-800 dark:text-white tracking-tight flex items-start justify-end">
             <span>{problem.num1}</span>
-            <sup className="text-3xl text-blue-500 ml-1">{problem.num2}</sup>
+            <sup className="text-3xl text-blue-500 dark:text-blue-400 ml-1">{problem.num2}</sup>
           </div>
-          <div className="h-2 bg-gray-200 mt-6 rounded-full" />
+          <div className="h-2 bg-gray-200 dark:bg-gray-700 mt-6 rounded-full" />
         </div>
       ) : isRoot ? (
         <div className="text-right mb-8">
-          <div className="text-6xl font-black text-gray-800 tracking-tight flex items-center justify-end gap-3">
-            <span className="text-blue-500">{problem.operator}</span>
-            <span className="border-t-4 border-gray-800 pt-2">{problem.num1}</span>
+          <div className="text-6xl font-black text-gray-800 dark:text-white tracking-tight flex items-center justify-end gap-3">
+            <span className="text-blue-500 dark:text-blue-400">{problem.operator}</span>
+            <span className="border-t-4 border-gray-800 dark:border-white pt-2">{problem.num1}</span>
           </div>
-          <div className="h-2 bg-gray-200 mt-6 rounded-full" />
+          <div className="h-2 bg-gray-200 dark:bg-gray-700 mt-6 rounded-full" />
         </div>
       ) : (
         <div className="text-right mb-6 sm:mb-8">
@@ -311,50 +309,46 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure, onShow
         </div>
       )}
 
-<<<<<<< HEAD
       {(isPower || isRoot) && (
         <div className="mt-6 flex flex-col items-center">
           {showHelp ? (
-            <div className="w-full rounded-2xl bg-gray-50 border border-gray-100 p-5 text-center">
-              <span className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Steps</span>
+            <div className="w-full rounded-2xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-5 text-center">
+              <span className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t.practice.steps}</span>
               {isPower ? (
-                <div className="text-3xl font-black text-gray-700 tracking-wide">
+                <div className="text-3xl font-black text-gray-700 dark:text-gray-200 tracking-wide">
                   {Array.from({ length: problem.num2 }).map((_, i) => (
                     <span key={i}>
-                      {i > 0 && <span className="text-blue-400 mx-3">×</span>}
+                      {i > 0 && <span className="text-blue-400 dark:text-blue-500 mx-3">×</span>}
                       {problem.num1}
                     </span>
                   ))}
                 </div>
               ) : rootGroups.length === 0 ? (
-                <div className="text-3xl font-black text-gray-700">1</div>
+                <div className="text-3xl font-black text-gray-700 dark:text-gray-200">1</div>
               ) : (
-                <div className="flex flex-wrap items-center justify-center gap-2 text-lg font-black text-gray-700">
+                <div className="flex flex-wrap items-center justify-center gap-2 text-lg font-black text-gray-700 dark:text-gray-200">
                   {rootGroups.map((g, gi) => (
-                    <span key={gi} className="px-2 py-1 rounded-lg bg-blue-100 text-blue-600 text-sm">
+                    <span key={gi} className="px-2 py-1 rounded-lg bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 text-sm">
                       {g.join(' · ')}
                     </span>
                   ))}
-                  <span className="text-gray-300 mx-2">→</span>
+                  <span className="text-gray-300 dark:text-gray-600 mx-2">→</span>
                   <span>{rootGroups.map((g) => g[0]).join(' × ')}</span>
                 </div>
               )}
             </div>
           ) : (
-            <button type="button" onClick={() => setShowHelp(true)} className="text-sm font-bold text-gray-400 hover:text-blue-500 transition-colors">
-              Press <kbd className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-500">H</kbd> for steps
+            <button type="button" onClick={() => setShowHelp(true)} className="text-sm font-bold text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors">
+              {t.practice.pressForSteps}
             </button>
           )}
         </div>
       )}
 
-      <div className="mt-10 flex justify-center">
-        <button onClick={handleNext} className="flex items-center gap-2 px-8 py-4 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold transition-all hover:scale-105 active:scale-95"><RefreshCw size={24} /> Skip Problem</button>
-=======
       <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 justify-center">
         {hasSolution && (
-          <button 
-            onClick={toggleSolution} 
+          <button
+            onClick={toggleSolution}
             className="flex items-center justify-center gap-2 px-6 py-4 rounded-xl sm:rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-bold text-sm sm:text-base hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all active:scale-95"
           >
             <HelpCircle size={18} className="sm:w-6 sm:h-6" /> {t.practice.showAnswer}
@@ -363,7 +357,6 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure, onShow
         <button onClick={handleNext} className="flex items-center justify-center gap-2 px-6 py-4 rounded-xl sm:rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-bold text-sm sm:text-base transition-all active:scale-95 hover:bg-gray-200 dark:hover:bg-gray-700">
           <RefreshCw size={18} className="sm:w-6 sm:h-6" /> {t.practice.skip}
         </button>
->>>>>>> bdd384090007b58f408e84d8bd95100a25a04de5
       </div>
     </motion.div>
   );

@@ -1,6 +1,7 @@
 export type OperationType = 
   | 'addition' | 'subtraction' | 'multiplication' | 'division' 
-  | 'gcd' | 'lcm' 
+  | 'gcd' | 'lcm'
+  | 'power' | 'root'
   | 'fraction_addition' | 'fraction_subtraction' | 'fraction_multiplication' | 'fraction_division'
   // Level 2
   | 'integer_addition' | 'integer_multiplication' 
