@@ -11,43 +11,79 @@ Per `AGENTS.md`, this repo pins a Next.js (16.2.2) whose APIs and conventions ma
 ## Commands
 
 ```bash
-npm run dev      # dev server — note it serves at http://localhost:3000/Mathly (basePath)
-npm run build    # next build → static export into ./out (this is also the "export" step)
+npm run dev      # dev server at http://localhost:3000/  (NO /Mathly prefix — see basePath below)
+npm run build    # next build → static export into ./out  (also the "export" step; ~40s)
+npm test         # vitest run — the pure-layer unit tests under src/**/*.test.ts
 npm run lint     # eslint (flat config, auto-discovered)
 npm start        # serve a prior production build
 ```
 
-There is **no test framework** configured — no test script, no runner. CI (`.github/workflows/ci.yml`) runs `npm install` → `npm run lint` → `npm run build`, then deploys `./out` to GitHub Pages on push to `main`.
+CI (`.github/workflows/ci.yml`) on push to `main`/`master`: `npm install` → `npm run lint` → `npm test` → `npm run build` → deploy `./out` to GitHub Pages.
+
+Run a single test file: `npm test -- registry` (substring match on the path).
 
 ## Architecture
 
-Single-page-ish math drill app. 100% client-side: no backend, no API routes, no auth. All persistence is `localStorage` (`mathly-user`, `mathly-scores`).
+Client-only math-drill app: no backend, no API routes, no auth. Persistence is `localStorage` — `mathly-user` (name) and `mathly-scores` (append-only score rows).
 
 ### Static-export constraints (`next.config.ts`)
 
-- `output: 'export'` — no server runtime. Every dynamic route needs `generateStaticParams` (see `src/app/practice/[type]/page.tsx`, which enumerates all 10 operation types). `next/image` is `unoptimized`.
-- `basePath: '/Mathly'` for GitHub Pages sub-path hosting. `<Link>`/router paths are written without the prefix; Next adds it. Dev and prod both live under `/Mathly`.
-- Any component calling `useSearchParams` must sit under a `<Suspense>` boundary (that's why `page.tsx` wraps `PracticeView`).
+- `output: 'export'` — no server runtime. Every dynamic route needs `generateStaticParams`. No `redirects`/`rewrites`/`headers` config (all client-side or unavailable). `next/image` is `unoptimized`.
+- **`basePath` is `'/Mathly'` only when `NODE_ENV === 'production'`** (`isProd` gate). So `next dev` serves at `/` with no prefix, but `./out` (and the live GitHub Pages site) live under `/Mathly` and every `out/*.html` references `/Mathly/_next/…`. To preview `out/` locally you must serve it so that `/Mathly/` maps to `out/`.
+- Any component calling `useSearchParams` must sit under a `<Suspense>` boundary (why every `page.tsx` under `src/app/practice/` wraps a `'use client'` route component).
 
-### Request/state flow
+### The problem-kind registry — `src/lib/practice/`
 
-1. `src/app/page.tsx` (landing, client) — collects `userName`, `digits` (1–4), `timeLimit` (30/60/120/0=∞). Builds a link to `/practice/{type}?digits=&time=&user=`. Also reads top-5 from `mathly-scores` for the "Hall of Speed" board.
-2. `src/app/practice/[type]/page.tsx` (server) — `generateStaticParams` + `<Suspense>` wrapper only.
-3. `src/components/practice/practice-view.tsx` (client) — owns the session: 3-2-1 countdown, the timer, `streak`/`solved`/`score`, `isFinished`. Writes a new entry to `mathly-scores` on finish (append-only; the list is only trimmed when *read* on the landing page). Every 10th solve fires confetti + `playMilestone`.
-4. `src/components/practice/problem-card.tsx` (client) — owns the current `Problem`. **No submit button:** `handleCheck` runs on every keystroke; a correct answer plays a sound, calls `onSuccess(timeMs)`, and auto-advances after 1s; a wrong answer (detected once the typed length reaches the answer length) shakes + calls `onFailure`. Renders four layouts by `type`: fraction (numerator/denominator inputs), factorization (gcd/lcm — shows prime-factor chips as a hint; the actual answer still goes in the main input), vertical (2+-digit add/sub, with cosmetic carry boxes), and the default horizontal layout.
+This is the core abstraction. Every drill "type" is an entry in a registry; the session shell is type-agnostic.
 
-### `src/lib/`
+- `types.ts` — `Mode` (`'numbers'`), `Family` (`arithmetic | fraction | factor-hint | notation | equation`), `TypeKey` (the ~20-key string union of all drill types), `AnswerState` (`'pending' | 'correct' | 'incorrect'`), `RawInput` (`{ num: string; denom?: string }`), `Problem` (one interface, discriminated by `family`), `ProblemKind`, `CardProps`, `SessionResult`.
+- `registry.ts` — `PROBLEM_TYPES: Record<TypeKey, ProblemKind>`, `getKind(type)` (throws on unknown), `allTypeKeys()`, `typesForMode(mode)`. A `ProblemKind` is `{ mode, family, difficulty: {label,options}|null, weight: number, generate(level): Problem, check(problem, raw): AnswerState, validate }`. `weight` is the per-type scoring coefficient (the old `difficultyCoefficients` values).
+- `families/<family>.tsx` (arithmetic, fraction, factor-hint, notation, equation) — each exports:
+  - `generate<Family>(type, level): Problem` — pure; the operand math, ported case-by-case from the old `math-engine.ts` switch. Guarantees preserved: division builds the quotient first (integer result), subtraction swaps operands to avoid negatives, multiplication caps operand 2 at ≤2 digits, fraction results are GCD-simplified (user must enter simplified form), roots/powers stay exact integers.
+  - `check<Family>(problem, raw): AnswerState` — per-keystroke validation. All families except `fraction` delegate to `checkInteger` in `_math.ts`; `fraction` needs both `num` and `denom`.
+  - `<Family>Card: React.FC<CardProps>` — the drill UI (layouts lifted from the deleted `problem-card.tsx`). `FactorHintCard` additionally owns the `H`-key "Steps" helper (grouped prime factors / repeated multiplication).
+- `families/_math.ts` — shared `calculateGCD`, `simplify`, `getPrimeFactors`, `genSigned`, `id` (random id), `checkInteger`.
+- `families/index.ts` — `FAMILY_CARDS: Record<Family, ComponentType<CardProps>>`.
+- `scoring.ts` — `scoreAnswer({ coeff, digits, timeMs, combo }) → { points, nextCombo }`, extracted verbatim from the old inline `handleSuccess` formula.
 
-- `math-engine.ts` — pure, framework-free. `generateProblem(type, digits)` → `Problem`. Guarantees: division builds the quotient first then multiplies (always integer); subtraction swaps operands to avoid negatives; multiplication caps the second operand at ≤2 digits; fraction results are always GCD-simplified, so the user must enter simplified form and `answer`/`answerDenom` are compared exactly. Adding an operation type = extend the `OperationType` union, add a `switch` case here, and add it to both `categories` in `page.tsx` and `generateStaticParams`.
-- `audio.ts` — Web Audio synth (no asset files). `mathlyAudio` is a singleton, `null` on the server; call sites use `mathlyAudio?.play…()`.
+### Request / state flow
+
+1. `src/app/page.tsx` — landing (`LauncherPage`): collects `userName`, shows the 8-level grid, links to `/level/N`. Reads top-5 from `mathly-scores` for the "Top Trainees" board. i18n + theme.
+2. `src/app/level/{1,2,3}/page.tsx` — per-level drill pickers with a shared digits (1–4) + time (30/60/120/0=∞) selector. Each drill links to `/practice/${getKind(id).mode}/${id}?level=N&digits=&time=&user=`. Levels 4–8 are `status: 'locked'` placeholders.
+3. `src/app/practice/[mode]/[type]/page.tsx` (server) — `generateStaticParams` from `allTypeKeys()` → `{ mode: 'numbers', type }`; `<Suspense>` wraps `nested-route.tsx` (`'use client'`; reads `useSearchParams`; renders `<SessionRunner>` with explicit props).
+4. `src/app/practice/[mode]/page.tsx` (server) — the **legacy redirect**. Its `[mode]` segment param actually carries a legacy *type* key (URLs were `/practice/addition`). `legacy-route.tsx` client-`router.replace`s to `/practice/<realmode>/<type>` preserving the query string; unknown type → `/`. This shape exists because Next App Router forbids sibling dynamic slugs (`[type]` next to `[mode]`), so `practice/` has exactly one dynamic child `[mode]`.
+5. `src/components/practice/session-runner.tsx` (client) — the **type-agnostic session shell**. Owns: 3-2-1 countdown, timer, streak/solved/score/combo HUD, **Rival Bot** (`botScore`), **Ghost pace bar** (vs personal best from `mathly-scores`), **Booster mode** (streak ≥ 5 slows the timer), **ConceptCard pre-roll** (when `t.concepts[type]` is an object), time bonus, milestone confetti, "Sprint Over" summary. It does `const kind = getKind(type)`, holds `useState(() => kind.generate(digits))`, and renders `FAMILY_CARDS[problem.family]` with **`key={problem.id}`** (full remount on advance) and `onSuccess={(t) => { handleSuccess(t); setTimeout(advance, 1000); }}`. `advance` regenerates the problem. Scoring/bot `coeff` = `getKind(type).weight`. On finish, appends `{ name, score, type, digits, mode: 'numbers', level, date }` to `mathly-scores` (readers tolerate old rows without `mode`/`level`).
+6. Family `<*Card>` (client) — owns the answer input(s) + `status`, and the solution overlay (`onShowSolution?`/`onHideSolution?` pause the shell; only `quadratic_vertex`/`log_basic`/`exp_neural` have a `t.solutions` entry so only they render the button). **No submit button** — `check<Family>` runs per keystroke: correct → sound + `onSuccess(timeMs)`; wrong (once typed length ≥ answer length) → shake + `onFailure()`. Cards **never advance themselves** — the footer **Skip** button and the shell's post-correct timer both call `onSkip` (= the shell's `advance`). Cards reset by remounting (the `key`), not via an effect.
+
+### Adding a drill type
+
+1. Add the key to the `TypeKey` union in `types.ts`.
+2. Add a `case` to the matching `families/<family>.tsx` `generate<Family>` (and a rendering branch in `<Family>Card` if it needs a new layout).
+3. Register it in `PROBLEM_TYPES` (`registry.ts`) with its `weight`.
+4. Add it to a `src/app/level/N/page.tsx` picker list to make it user-reachable. `generateStaticParams` picks it up automatically via `allTypeKeys()`.
+
+### `src/lib/` (non-registry)
+
+- `audio.ts` — Web Audio synth singleton (`mathlyAudio`, `null` on the server); call sites use `mathlyAudio?.play…()`.
+- `theme-context.tsx` (+ `src/components/theme-toggle.tsx`) — real persisted light/dark theme. Components carry `dark:` variants throughout.
+- `i18n/language-context.tsx` + `i18n/translations.ts` — `useLanguage()` → `t`; **en + ko**. Notable keys: `t.concepts` (ConceptCard), `t.solutions` (Show-Answer overlay), `t.practiceInstructions`, `t.practice.*`. New user-facing strings go in **both** language blocks.
 - `utils.ts` — `cn()` = `clsx` + `tailwind-merge`.
+
+### Testing
+
+**Vitest**, `node` env, `@` → `./src` alias (`vitest.config.ts`). Covers the pure layer only: `generate<Family>` (per type × level, invariants), `check<Family>` (state machine, negatives), `scoreAnswer` (golden values), `_math` helpers, and `registry.ts` consistency (all 20 types resolve; `weight`s match; `family` has a Card; `validate` round-trips). The Cards, `SessionRunner`, and routing are **not** unit-tested — `npm run build` (type-check + prerender of all 47 routes) plus a manual browser pass are the gate.
 
 ### Styling
 
-Tailwind CSS v4, CSS-first config — there is **no `tailwind.config.js`**. Theme tokens and the custom `animate-shake` keyframe live in `src/app/globals.css` under `@theme inline`. The `@media (prefers-color-scheme: dark)` block in `globals.css` is leftover from `create-next-app`; the components are hardcoded light-mode (`bg-white`, `text-gray-800`, …) so it has no effect.
+Tailwind v4, CSS-first — **no `tailwind.config.js`**. Theme tokens and the `animate-shake` keyframe live in `src/app/globals.css` under `@theme inline`. The app is fully dark-mode-aware (see `theme-context.tsx`); components use explicit `dark:` variants.
 
 ### Conventions
 
 - Path alias `@/*` → `./src/*`.
-- ESLint uses the flat-config subpath imports from `eslint-config-next` (`eslint-config-next/core-web-vitals`, `.../typescript`).
+- ESLint flat config via `eslint-config-next` subpath imports (`.../core-web-vitals`, `.../typescript`).
 - `babel-plugin-react-compiler` is a dependency but is **not** wired up in `next.config.ts`.
+- `src/lib/math-engine.ts` and `src/components/practice/problem-card.tsx` were **deleted** — superseded by `src/lib/practice/`. Don't reference them.
+
+### Design docs
+
+The registry refactor's spec and plan are under `docs/superpowers/`. The spec's iframe/embed feature (§7) is a deferred "part 2" — not yet built.
