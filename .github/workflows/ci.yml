@@ -33,6 +33,9 @@ jobs:
       - name: Lint Check
         run: npm run lint
 
+      - name: Unit Tests
+        run: npm test
+
       - name: Build and Export
         run: npm run build
 
