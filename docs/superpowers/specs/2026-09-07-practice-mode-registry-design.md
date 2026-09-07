@@ -81,60 +81,91 @@ interface ProblemKind {
   mode: Mode;
   difficulty: { label: string; options: number[] } | null; // null → hide the selector
   generate(level: number): Problem;                          // stamps problem.family
-  validate(problem: Problem, raw: unknown): AnswerState;     // pure
-  weight(problem: Problem, level: number): number;           // score multiplier; replaces `digits`
+  validate(problem: Problem, raw: unknown): AnswerState;     // delegates to the family `check`
+  weight: number;                                            // per-type difficulty coefficient (old `difficultyCoefficients[type]`)
   manualCommit?: boolean;                                    // opt-in Check button (unused this phase)
 }
 
 interface CardProps {
   problem: Problem;
-  state: AnswerState;             // shell-owned → correct/wrong styling
-  onInput(raw: unknown): void;    // card reports raw input; shell runs validate + reacts
-  onCommit?(): void;              // present only when kind.manualCommit
-  showHelp: boolean;              // the `H` helper toggle, shell-owned
+  digits: number;
+  onSuccess(timeMs: number): void;   // kept verbatim from today's ProblemCard
+  onFailure(): void;
+  onShowSolution?(): void;
+  onHideSolution?(): void;
 }
 ```
 
+**Card contract note (amended).** The 5 numeric family Cards are
+near-verbatim extractions of the current `ProblemCard` layout branches.
+Each keeps its own input handling, its own answer timing, and the existing
+`onSuccess(timeMs)` / `onFailure` / `onShowSolution` / `onHideSolution`
+callbacks — the shell passes these straight through. `FactorHintCard`
+keeps the `H`-key helper state internally (it is the only consumer).
+`ProblemKind.validate` and the per-family pure `check(problem, raw)`
+helper still exist — the Cards call `check` internally, and it is the unit
+under test — but the shell does **not** drive a `validate`/`onInput` loop
+for numeric kinds. `manualCommit` / a shell-driven loop is reserved for
+future shell-owned kinds (shapes).
+
 Registry entries deduplicate by sharing family functions with a params
 slice, e.g. `addition` and `multiplication` both use `generateArithmetic` /
-`validateArithmetic` with a different operator.
+`checkArithmetic` with a different operator.
 
 The Card is **not** on `ProblemKind`. `generate` stamps `problem.family`,
 and `SessionRunner` renders `FAMILY_CARDS[problem.family]`. A type whose
 layout changes with level (2+-digit add/sub → carry columns) is expressed
 by `generate` returning a different `family` at generation time.
 
-## 4. Session shell — `SessionRunner`
+## 4. Session shell — `SessionRunner` (amended)
 
 `src/components/practice/practice-view.tsx` → `session-runner.tsx` (a
 re-export shim keeps `practice-view` importable until migration step 5).
 
-Props: `{ typeKey, level, digits, timeLimit, user, embed, parentOrigin?, autostart?, persist }`.
+**The entire current 386-line `practice-view.tsx` is preserved as-is**,
+including every mechanic that is already type-agnostic:
 
-Responsibilities (all type-agnostic):
+- 3→0 countdown, timer effect, streak / score / solved HUD, milestone
+  confetti, the "Sprint Over" summary screen.
+- **Rival Bot** (`botScore` ticks by `coeff` + `digits`; "beat the bot" on
+  the summary).
+- **Ghost pace bar** (progress vs. personal best, read from `mathly-scores`
+  filtered by `type` + `digits`).
+- **Booster mode** (streak ≥ 5 → slower timer, altered scoring/visuals).
+- **Combo multiplier** (consecutive sub-1.5 s answers stack a score
+  multiplier).
+- **`ConceptCard` pre-roll** (`showConcept` when `t.concepts[type]` is an
+  object; blocks the countdown until dismissed).
+- **Time bonus** on correct answers; **pause** while a solution is shown.
+- The full scoring formula in `handleSuccess`
+  (`1000 * coeff * digits * speedFactor * comboMultiplier`) — unchanged.
 
-- State machine: `countdown (3→0)` → `running` → `finished`. If
-  `embed && autostart === false`, hold at countdown until a
-  `mathly:start` message.
-- Per problem: `problem = kind.generate(digits)`, `state = 'pending'`.
-  Render `<FAMILY_CARDS[problem.family] problem state showHelp
-  onInput={...} onCommit={kind.manualCommit ? commit : undefined} />`.
-- On `onInput(raw)`: `state = kind.validate(problem, raw)`.
-  - `correct` → `playSuccess`, `score += scoreAnswer({ timeMs, weight: kind.weight(problem, digits) })`,
-    `streak++`, `solved++`, schedule advance after 1s, `emit('mathly:answer', …)`.
-  - `incorrect` → `playError`, `streak = 0`, `emit('mathly:answer', …)`.
-- Milestone: every 10 `solved` → confetti + `playMilestone` (unchanged).
-- Timer: `timeLimit > 0` → 1s decrement; reaching 0 → `finished`.
-- `finished` → build `SessionResult`, call `persist(result)`,
-  `emit('mathly:session-complete', result)`.
-- Owns `showHelp` + the global `H` keydown listener (moved up from
-  `ProblemCard`); passes `showHelp` down. Only `FactorHintCard` renders
-  anything for it.
+**The only changes to this file:**
 
-Unchanged UI: countdown screen, timer/streak/score HUD, milestone
-animation, "Sprint Over" summary. Deleted: `import ProblemCard`, the
-`type as OperationType` cast, `searchParams` parsing (moves to the route
-page, passed as props).
+1. `type` (a `string`) still comes in, but as a prop, not from
+   `use(params)` — `searchParams` parsing moves to the route page (§6) and
+   the values arrive as props: `{ type, digits, timeLimit, level, user,
+   embed, parentOrigin?, autostart?, persist }`.
+2. `coeff` is no longer read from the local `difficultyCoefficients` map —
+   it is `getKind(type).weight` (a constant); the local map is deleted.
+   See §8.
+3. `<ProblemCard type={type as OperationType} digits onSuccess onFailure
+   onShowSolution onHideSolution />` becomes
+   `const Card = FAMILY_CARDS[getKind(type).family];
+   <Card problem={problem} digits onSuccess onFailure onShowSolution
+   onHideSolution />`, where `problem = getKind(type).generate(digits)`
+   is regenerated per advance (replacing the `key={\`${type}-${digits}\`}`
+   remount trick with an explicit `problem.id` key).
+4. The score-persist effect and the finished-state `emit(...)` calls go
+   through the injected `persist` prop and `embed.ts#emit` (§5, §7); the
+   direct `localStorage.setItem('mathly-scores', …)` is removed from the
+   component.
+5. `embed` prop: when true, hide the header back-arrow and the summary
+   "Back to Selection" button, drop the outer wrapper padding, and (if
+   `autostart === false`) hold at countdown for `mathly:start`.
+
+`ConceptCard`, `useLanguage`, `useTheme`, `mathlyAudio`, all HUD markup,
+Bot/Ghost/Booster/Combo state and effects — **untouched**.
 
 ## 5. Families & engine split
 
@@ -153,13 +184,22 @@ family's `generate(type, level)` (pure functions). `getPrimeFactors`,
 `calculateGCD`, `simplify`, `genSigned` move to `families/_math.ts`.
 `Problem` keeps one interface; family-specific fields stay optional.
 
-`validate` per family:
-- `arithmetic`, `notation`, `equation`: integer compare, with the current
-  "incorrect once typed length ≥ answer length" heuristic (and the merged
-  negative-answer handling).
-- `factor-hint`: integer compare (same heuristic).
-- `fraction`: both numerator and denominator must match the simplified
-  answer.
+Each family module also exports a pure `check(problem, raw): AnswerState`
+(and `ProblemKind.validate` delegates to it). The **Card** calls `check`
+internally on each input change — this is the exact logic lifted out of
+today's `ProblemCard.handleCheck`:
+- `arithmetic`, `notation`, `equation`, `factor-hint`: parse int, compare
+  to `problem.answer`; `'incorrect'` once the typed length reaches the
+  answer length (with the merged negative-answer handling:
+  `!raw.startsWith('-')` for the fast path, and the extra branch for
+  over-long negative input); else `'pending'`.
+- `fraction`: parse both fields; `'correct'` when numerator ===
+  `problem.answer` **and** denominator === `problem.answerDenom || 1`;
+  `'incorrect'` once both fields reach their answer lengths; else
+  `'pending'`.
+- On `'correct'` the Card plays the sound and calls
+  `onSuccess(performance.now() - startTime)`; on `'incorrect'`,
+  `onFailure()`. (Identical to today.)
 - No family sets `manualCommit` this phase.
 
 ## 6. Routing, static params, old-URL compatibility
@@ -257,17 +297,52 @@ shared selector is unchanged in practice; per-row selectors are deferred.
 `?level=` (curriculum tier) is passed through and recorded, not fed to
 `generate`.
 
-**Scoring:** `scoring.ts`:
+**Scoring (amended — matches the merged shell).** The live formula stays
+in `SessionRunner.handleSuccess` **exactly as written today**:
 
 ```ts
-export function scoreAnswer({ timeMs, weight }: { timeMs: number; weight: number }): number {
-  return Math.max(1, Math.floor((10000 / Math.max(timeMs, 100)) * weight));
+const baseDifficultyScore = 1000 * coeff * digits;
+const speedFactor = Math.min(2, Math.max(0.1, 1500 / (timeMs + 200)));
+const isFast = timeMs < 1500;
+const newCombo = isFast ? combo + 1 : 0;
+const multiplier = 1 + newCombo * 0.2;
+const finalPoints = Math.floor(baseDifficultyScore * speedFactor * multiplier);
+```
+
+The **only** change is the source of `coeff`. Today it comes from a local
+`difficultyCoefficients: Record<string, number>` map in `practice-view.tsx`
+(`addition: 1`, `subtraction: 1.2`, `multiplication: 2.5`, `division: 2`,
+`gcd: 4`, `lcm: 4`, `fraction_addition: 5`, `fraction_subtraction: 5`,
+`fraction_multiplication: 4`, `fraction_division: 4`,
+`integer_addition: 1.5`, `integer_multiplication: 2`, `equation_simple: 3`,
+`exponent_basic: 2.5`, `square_root: 2.5`, `quadratic_vertex: 3`,
+`log_basic: 3`, `exp_neural: 3`; default `1`). Plus `power`, `root` (added
+this session, currently defaulting to `1`) — assign both `2.5` to match
+`exponent_basic`/`square_root`.
+
+`ProblemKind.weight: number` carries that per-type coefficient (a constant,
+not a function — no `problem`/`digits` args). The shell does
+`const coeff = getKind(type).weight;`. The local map is deleted.
+
+`scoring.ts` extracts the formula so it is unit-testable:
+
+```ts
+export function scoreAnswer(
+  { coeff, digits, timeMs, combo }: { coeff: number; digits: number; timeMs: number; combo: number },
+): { points: number; nextCombo: number } {
+  const base = 1000 * coeff * digits;
+  const speedFactor = Math.min(2, Math.max(0.1, 1500 / (timeMs + 200)));
+  const nextCombo = timeMs < 1500 ? combo + 1 : 0;
+  const points = Math.floor(base * speedFactor * (1 + nextCombo * 0.2));
+  return { points, nextCombo };
 }
 ```
 
-`kind.weight(problem, digits)`: `arithmetic` returns `digits` (identical to
-today); other families return their own small function. Streak stays
-display-only. One shared `mathly-scores` leaderboard — no per-mode boards.
+`handleSuccess` calls `scoreAnswer` instead of inlining the arithmetic; all
+other behaviour in `handleSuccess` (time bonus, confetti, `playScale`,
+milestone checks, `setStreak`/`setSolved`) is unchanged. The Bot-pace
+formula also reads `coeff` — it now reads `getKind(type).weight` the same
+way. Streak stays display-only. One shared `mathly-scores` leaderboard.
 
 ## 9. Testing
 
@@ -277,9 +352,9 @@ step before `next build`.
 | Target | Assertions |
 |---|---|
 | `families/<f>.generate(type, level)` | per type × level 1–4: `answer` correct for operands; required fields present; `family` stamped; invariants — division integer, subtraction non-negative, fractions simplified, perfect roots, `base ** exp === answer` |
-| `families/<f>.validate(problem, raw)` | `pending → correct` on exact match; `incorrect` once typed length ≥ answer length; fraction needs both parts |
-| `scoring.scoreAnswer` | parity with the pre-refactor formula at `weight = digits` |
-| `registry` | every legacy `TypeKey` has an entry; each entry's `generate` returns a `family` present in `FAMILY_CARDS`; `mode` set |
+| `families/<f>.check(problem, raw)` | `pending → correct` on exact match; `incorrect` once typed length ≥ answer length; fraction needs both parts; negative-answer branches |
+| `scoring.scoreAnswer` | golden values captured from the current inline formula for a grid of `(coeff, digits, timeMs, combo)`; `nextCombo` flips at `timeMs === 1500` |
+| `registry` | every legacy `TypeKey` has an entry; each entry's `generate` returns a `family` present in `FAMILY_CARDS`; `mode` set; `weight` matches the old `difficultyCoefficients` value |
 | `embed.parseEmbedConfig` | flag / `parentOrigin` / `autostart` parsing |
 
 `SessionRunner` loop, the client redirect, and `postMessage` stay on manual
