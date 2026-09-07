@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import LegacySessionRoute from './legacy-route';
+import LegacyRedirect from './legacy-route';
 
 // The `[mode]` param here is actually a legacy *type* key (e.g. "addition").
 // Legacy URLs were /practice/<type>; Task 13 turns this into a redirect to
@@ -16,7 +16,7 @@ export function generateStaticParams() {
 export default function Page({ params }: { params: Promise<{ mode: string }> }) {
   return (
     <Suspense fallback={<div className="min-h-screen" />}>
-      <LegacySessionRoute params={params} />
+      <LegacyRedirect params={params} />
     </Suspense>
   );
 }

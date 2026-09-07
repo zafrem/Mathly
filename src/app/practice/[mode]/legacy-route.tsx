@@ -1,18 +1,23 @@
 'use client';
-import { use } from 'react';
-import { useSearchParams } from 'next/navigation';
-import SessionRunner from '@/components/practice/session-runner';
+import { use, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { PROBLEM_TYPES } from '@/lib/practice/registry';
+import type { TypeKey } from '@/lib/practice/types';
 
-export default function LegacySessionRoute({ params }: { params: Promise<{ mode: string }> }) {
+export default function LegacyRedirect({ params }: { params: Promise<{ mode: string }> }) {
   const { mode: type } = use(params); // `mode` segment carries a legacy type key
   const sp = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    const kind = PROBLEM_TYPES[type as TypeKey];
+    const qs = sp.toString();
+    router.replace(kind ? `/practice/${kind.mode}/${type}${qs ? `?${qs}` : ''}` : '/');
+  }, [type, sp, router]);
+
   return (
-    <SessionRunner
-      type={type}
-      digits={parseInt(sp.get('digits') || '2')}
-      initialTime={parseInt(sp.get('time') || '60')}
-      userName={sp.get('user') || 'Anonymous'}
-      level={sp.get('level') || ''}
-    />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+      <div className="text-2xl font-bold text-gray-400 dark:text-gray-600 animate-pulse">Loading…</div>
+    </div>
   );
 }
