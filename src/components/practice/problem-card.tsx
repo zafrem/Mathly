@@ -142,17 +142,24 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure, onShow
 
   const hasSolution = !!(t.solutions as Record<string, string>)[type];
 
+  // The step helper covers powers (power, exponent_basic) and perfect roots
+  // (root, square_root). exp_neural is excluded — its exponent can be 0.
+  const showsPowerSteps = isPower || type === 'exponent_basic';
+  const showsRootSteps = isRoot || isSquareRoot;
+  // Root index: `num2` for the power/root drill, always 2 for square_root.
+  const rootChunk = isRoot ? problem.num2 : 2;
+
   const maxLen = Math.max(problem.num1.toString().length, problem.num2.toString().length);
   const num1Str = problem.num1.toString().padStart(maxLen, ' ');
   const num2Str = problem.num2.toString().padStart(maxLen, ' ');
 
-  // Prime factors of the radicand, chunked into groups of `num2` (the root
-  // index). Each group is a set of identical primes; taking one member from
-  // every group and multiplying them gives the root.
+  // Prime factors of the radicand, chunked into groups of `rootChunk`. Each
+  // group is a set of identical primes; taking one member from every group
+  // and multiplying them gives the root.
   const rootGroups: number[][] = [];
-  if (isRoot && problem.factors1) {
-    for (let i = 0; i < problem.factors1.length; i += problem.num2) {
-      rootGroups.push(problem.factors1.slice(i, i + problem.num2));
+  if (showsRootSteps && problem.factors1) {
+    for (let i = 0; i < problem.factors1.length; i += rootChunk) {
+      rootGroups.push(problem.factors1.slice(i, i + rootChunk));
     }
   }
 
@@ -309,12 +316,12 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure, onShow
         </div>
       )}
 
-      {(isPower || isRoot) && (
+      {(showsPowerSteps || showsRootSteps) && (
         <div className="mt-6 flex flex-col items-center">
           {showHelp ? (
             <div className="w-full rounded-2xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-5 text-center">
               <span className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t.practice.steps}</span>
-              {isPower ? (
+              {showsPowerSteps ? (
                 <div className="text-3xl font-black text-gray-700 dark:text-gray-200 tracking-wide">
                   {Array.from({ length: problem.num2 }).map((_, i) => (
                     <span key={i}>
