@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, use, useEffect, useMemo } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Trophy, Zap, Timer, RotateCcw, Flame, Ghost, Bot } from 'lucide-react';
 import ConceptCard from '@/components/practice/concept-card';
@@ -25,18 +25,19 @@ interface ScoreEntry {
   date: string;
 }
 
-export default function SessionRunner({ params }: { params: Promise<{ type: string }> }) {
-  const { type } = use(params);
+export default function SessionRunner({
+  type, digits, initialTime, userName, level,
+}: {
+  type: string;
+  digits: number;
+  initialTime: number;
+  userName: string;
+  level: string;
+}) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { t } = useLanguage();
   const { theme } = useTheme();
-  
-  const digits = parseInt(searchParams.get('digits') || '2');
-  const initialTime = parseInt(searchParams.get('time') || '60');
-  const userName = searchParams.get('user') || 'Anonymous';
-  const level = searchParams.get('level') || '';
-  
+
   const backPath = level ? `/level/${level}` : '/';
   
   const kind = getKind(type);
