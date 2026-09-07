@@ -360,6 +360,7 @@ export default function SessionRunner({
                         onFailure={handleFailure}
                         onShowSolution={() => setIsPaused(true)}
                         onHideSolution={() => setIsPaused(false)}
+                        onSkip={advance}
                       />
                     );
                   })()}

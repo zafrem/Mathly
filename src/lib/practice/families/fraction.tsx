@@ -2,14 +2,12 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HelpCircle, ArrowRight } from 'lucide-react';
+import { HelpCircle, ArrowRight, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { mathlyAudio } from '@/lib/audio';
 import { useLanguage } from '@/lib/i18n/language-context';
 import type { AnswerState, CardProps, Problem, RawInput, TypeKey } from '../types';
-import { simplify } from './_math';
-
-const id = () => Math.random().toString(36).substring(2, 9);
+import { simplify, id } from './_math';
 
 const genFrac = (): [number, number] => {
   const d = Math.floor(Math.random() * 8) + 2;
@@ -65,7 +63,7 @@ export function checkFraction(problem: Problem, raw: RawInput): AnswerState {
   return 'pending';
 }
 
-export const FractionCard: React.FC<CardProps> = ({ problem, onSuccess, onFailure, onShowSolution, onHideSolution }) => {
+export const FractionCard: React.FC<CardProps> = ({ problem, onSuccess, onFailure, onShowSolution, onHideSolution, onSkip }) => {
   const { t } = useLanguage();
   const [userAnswer, setUserAnswer] = useState<string>('');
   const [userDenom, setUserDenom] = useState<string>('');
@@ -76,16 +74,12 @@ export const FractionCard: React.FC<CardProps> = ({ problem, onSuccess, onFailur
 
   useEffect(() => {
     startRef.current = performance.now();
-    // Reset the form when the problem changes (parent keeps this Card mounted).
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setUserAnswer('');
-    setUserDenom('');
-    setStatus('idle');
     const focusTimer = setTimeout(() => inputRef.current?.focus(), 50);
     return () => clearTimeout(focusTimer);
-  }, [problem.id]);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (status === 'correct') return;
     const value = e.target.value;
     if (!/^-?\d*$/.test(value)) return;
     setUserAnswer(value);
@@ -102,6 +96,7 @@ export const FractionCard: React.FC<CardProps> = ({ problem, onSuccess, onFailur
   };
 
   const handleDenomChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (status === 'correct') return;
     const value = e.target.value;
     if (!/^-?\d*$/.test(value)) return;
     setUserDenom(value);
@@ -117,22 +112,14 @@ export const FractionCard: React.FC<CardProps> = ({ problem, onSuccess, onFailur
     }
   };
 
-  const resetForProblem = () => {
-    setUserAnswer('');
-    setUserDenom('');
-    setStatus('idle');
-    setTimeout(() => inputRef.current?.focus(), 50);
+  const openSolution = () => {
+    setShowSolution(true);
+    onShowSolution?.();
   };
-
-  const toggleSolution = () => {
-    if (!showSolution) {
-      setShowSolution(true);
-      onShowSolution?.();
-    } else {
-      setShowSolution(false);
-      onHideSolution?.();
-      resetForProblem();
-    }
+  const dismissSolution = () => {
+    setShowSolution(false);
+    onHideSolution?.();
+    onSkip?.();            // advance to a fresh problem — peeking forfeits the current one
   };
 
   const hasSolution = !!(t.solutions as Record<string, string>)[problem.type];
@@ -164,7 +151,7 @@ export const FractionCard: React.FC<CardProps> = ({ problem, onSuccess, onFailur
               {(t.solutions as Record<string, string>)[problem.type]}
             </p>
             <button
-              onClick={toggleSolution}
+              onClick={dismissSolution}
               className="w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-black font-black rounded-2xl flex items-center justify-center gap-2 hover:bg-gray-800 dark:hover:bg-gray-100 transition-all"
             >
               <span>{t.practice.gotIt}</span>
@@ -197,12 +184,18 @@ export const FractionCard: React.FC<CardProps> = ({ problem, onSuccess, onFailur
       <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 justify-center">
         {hasSolution && (
           <button
-            onClick={toggleSolution}
+            onClick={openSolution}
             className="flex items-center justify-center gap-2 px-6 py-4 rounded-xl sm:rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-bold text-sm sm:text-base hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all active:scale-95"
           >
             <HelpCircle size={18} className="sm:w-6 sm:h-6" /> {t.practice.showAnswer}
           </button>
         )}
+        <button
+          onClick={() => onSkip?.()}
+          className="flex items-center justify-center gap-2 px-6 py-4 rounded-xl sm:rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-bold text-sm sm:text-base hover:bg-gray-200 dark:hover:bg-gray-700 transition-all active:scale-95"
+        >
+          <RefreshCw size={18} className="sm:w-6 sm:h-6" /> {t.practice.skip}
+        </button>
       </div>
     </motion.div>
   );

@@ -2,14 +2,13 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, HelpCircle, ArrowRight } from 'lucide-react';
+import { Check, X, HelpCircle, ArrowRight, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { mathlyAudio } from '@/lib/audio';
 import { useLanguage } from '@/lib/i18n/language-context';
 import type { AnswerState, CardProps, Problem, RawInput, TypeKey } from '../types';
-import { calculateGCD, checkInteger, getPrimeFactors } from './_math';
+import { calculateGCD, checkInteger, getPrimeFactors, id } from './_math';
 
-const id = () => Math.random().toString(36).substring(2, 9);
 const rand = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 export function generateFactorHint(type: TypeKey, level: number): Problem {
@@ -65,7 +64,7 @@ export function generateFactorHint(type: TypeKey, level: number): Problem {
 
 export const checkFactorHint = (problem: Problem, raw: RawInput): AnswerState => checkInteger(problem, raw);
 
-export const FactorHintCard: React.FC<CardProps> = ({ problem, onSuccess, onFailure, onShowSolution, onHideSolution }) => {
+export const FactorHintCard: React.FC<CardProps> = ({ problem, onSuccess, onFailure, onShowSolution, onHideSolution, onSkip }) => {
   const { t } = useLanguage();
   const [userAnswer, setUserAnswer] = useState<string>('');
   const [status, setStatus] = useState<'idle' | 'correct' | 'incorrect'>('idle');
@@ -90,6 +89,7 @@ export const FactorHintCard: React.FC<CardProps> = ({ problem, onSuccess, onFail
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (status === 'correct') return;
     const value = e.target.value;
     if (!/^-?\d*$/.test(value)) return;
     setUserAnswer(value);
@@ -105,21 +105,14 @@ export const FactorHintCard: React.FC<CardProps> = ({ problem, onSuccess, onFail
     }
   };
 
-  const resetForProblem = () => {
-    setUserAnswer('');
-    setStatus('idle');
-    setTimeout(() => inputRef.current?.focus(), 50);
+  const openSolution = () => {
+    setShowSolution(true);
+    onShowSolution?.();
   };
-
-  const toggleSolution = () => {
-    if (!showSolution) {
-      setShowSolution(true);
-      onShowSolution?.();
-    } else {
-      setShowSolution(false);
-      onHideSolution?.();
-      resetForProblem();
-    }
+  const dismissSolution = () => {
+    setShowSolution(false);
+    onHideSolution?.();
+    onSkip?.();            // advance to a fresh problem — peeking forfeits the current one
   };
 
   const isFactorization = problem.type === 'gcd' || problem.type === 'lcm';
@@ -174,7 +167,7 @@ export const FactorHintCard: React.FC<CardProps> = ({ problem, onSuccess, onFail
               {(t.solutions as Record<string, string>)[problem.type]}
             </p>
             <button
-              onClick={toggleSolution}
+              onClick={dismissSolution}
               className="w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-black font-black rounded-2xl flex items-center justify-center gap-2 hover:bg-gray-800 dark:hover:bg-gray-100 transition-all"
             >
               <span>{t.practice.gotIt}</span>
@@ -280,12 +273,18 @@ export const FactorHintCard: React.FC<CardProps> = ({ problem, onSuccess, onFail
       <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 justify-center">
         {hasSolution && (
           <button
-            onClick={toggleSolution}
+            onClick={openSolution}
             className="flex items-center justify-center gap-2 px-6 py-4 rounded-xl sm:rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-bold text-sm sm:text-base hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all active:scale-95"
           >
             <HelpCircle size={18} className="sm:w-6 sm:h-6" /> {t.practice.showAnswer}
           </button>
         )}
+        <button
+          onClick={() => onSkip?.()}
+          className="flex items-center justify-center gap-2 px-6 py-4 rounded-xl sm:rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-bold text-sm sm:text-base hover:bg-gray-200 dark:hover:bg-gray-700 transition-all active:scale-95"
+        >
+          <RefreshCw size={18} className="sm:w-6 sm:h-6" /> {t.practice.skip}
+        </button>
       </div>
     </motion.div>
   );

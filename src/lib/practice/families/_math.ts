@@ -1,5 +1,7 @@
 import type { AnswerState, Problem, RawInput } from '../types';
 
+export const id = () => Math.random().toString(36).substring(2, 9);
+
 export const calculateGCD = (a: number, b: number): number => {
   return b === 0 ? a : calculateGCD(b, a % b);
 };
@@ -30,7 +32,7 @@ export const genSigned = (d: number): number => {
   return Math.random() > 0.5 ? val : -val;
 };
 
-// Shared single-integer answer check — lifted from problem-card.tsx handleCheck
+// Shared single-integer answer check — lifted from the legacy problem-card handleCheck (since removed).
 // (the non-fraction branch). Used by the arithmetic / factor-hint / notation /
 // equation families.
 export function checkInteger(problem: Problem, raw: RawInput): AnswerState {

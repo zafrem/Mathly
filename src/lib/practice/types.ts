@@ -50,6 +50,7 @@ export interface CardProps {
   onFailure(): void;
   onShowSolution?(): void;
   onHideSolution?(): void;
+  onSkip?(): void;
 }
 
 export interface SessionResult {
