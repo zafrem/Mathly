@@ -1,6 +1,7 @@
-export type OperationType = 
-  | 'addition' | 'subtraction' | 'multiplication' | 'division' 
-  | 'gcd' | 'lcm' 
+export type OperationType =
+  | 'addition' | 'subtraction' | 'multiplication' | 'division'
+  | 'gcd' | 'lcm'
+  | 'power' | 'root'
   | 'fraction_addition' | 'fraction_subtraction' | 'fraction_multiplication' | 'fraction_division';
 
 export interface Problem {
@@ -93,7 +94,23 @@ export const generateProblem = (type: OperationType, digits: number): Problem =>
       num2 = Math.floor(Math.random() * (lMax - lMin + 1)) + lMin;
       answer = (num1 * num2) / calculateGCD(num1, num2);
       break;
-    
+
+    case 'power':
+      // Base sized by `digits`; exponent stays small so the result is
+      // still mentally tractable. Only single-digit bases may be cubed.
+      operator = '^';
+      num2 = digits === 1 && Math.random() < 0.5 ? 3 : 2;
+      answer = Math.pow(num1, num2);
+      break;
+    case 'root':
+      // Build the root first, then raise it to the index, so the radicand
+      // is always a perfect power and the answer is an exact integer.
+      num2 = digits === 1 && Math.random() < 0.5 ? 3 : 2;
+      operator = num2 === 3 ? '∛' : '√';
+      answer = Math.floor(Math.random() * (max - min + 1)) + min;
+      num1 = Math.pow(answer, num2);
+      break;
+
     case 'fraction_addition':
       operator = '+';
       [num1, denom1] = genFrac(); [num2, denom2] = genFrac();

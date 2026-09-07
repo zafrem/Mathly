@@ -20,12 +20,22 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
   const [userDenom, setUserDenom] = useState<string>('');
   const [carries, setCarries] = useState<string[]>(() => new Array(problem.answer.toString().length).fill(''));
   const [status, setStatus] = useState<'idle' | 'correct' | 'incorrect'>('idle');
+  const [showHelp, setShowHelp] = useState(false);
   const startTime = useRef<number>(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     startTime.current = performance.now();
   }, [problem.id]);
+
+  // `H` toggles the step-by-step helper for the power/root drills.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'h' || e.key === 'H') setShowHelp((s) => !s);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   const handleNext = () => {
     const p = generateProblem(type, digits);
@@ -34,6 +44,7 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
     setUserDenom('');
     setCarries(new Array(p.answer.toString().length).fill(''));
     setStatus('idle');
+    setShowHelp(false);
     setTimeout(() => inputRef.current?.focus(), 50);
   };
 
@@ -97,9 +108,21 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
   const isVertical = digits >= 2 && (type === 'addition' || type === 'subtraction');
   const isFactorization = type === 'gcd' || type === 'lcm';
   const isFraction = type.startsWith('fraction_');
+  const isPower = type === 'power';
+  const isRoot = type === 'root';
   const maxLen = Math.max(problem.num1.toString().length, problem.num2.toString().length);
   const num1Str = problem.num1.toString().padStart(maxLen, ' ');
   const num2Str = problem.num2.toString().padStart(maxLen, ' ');
+
+  // Prime factors of the radicand, chunked into groups of `num2` (the root
+  // index). Each group is a set of identical primes; taking one member from
+  // every group and multiplying them gives the root.
+  const rootGroups: number[][] = [];
+  if (isRoot && problem.factors1) {
+    for (let i = 0; i < problem.factors1.length; i += problem.num2) {
+      rootGroups.push(problem.factors1.slice(i, i + problem.num2));
+    }
+  }
 
   return (
     <motion.div key={problem.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="max-w-xl w-full mx-auto p-12 rounded-[2.5rem] bg-white shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-gray-100">
@@ -145,6 +168,22 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
           <div className="relative pr-1"><span className="absolute -left-16 text-blue-500 font-sans">{problem.operator}</span>{num2Str}</div>
           <div className="w-full h-2 bg-gray-200 rounded-full mt-4" />
         </div>
+      ) : isPower ? (
+        <div className="text-right mb-8">
+          <div className="text-6xl font-black text-gray-800 tracking-tight flex items-start justify-end">
+            <span>{problem.num1}</span>
+            <sup className="text-3xl text-blue-500 ml-1">{problem.num2}</sup>
+          </div>
+          <div className="h-2 bg-gray-200 mt-6 rounded-full" />
+        </div>
+      ) : isRoot ? (
+        <div className="text-right mb-8">
+          <div className="text-6xl font-black text-gray-800 tracking-tight flex items-center justify-end gap-3">
+            <span className="text-blue-500">{problem.operator}</span>
+            <span className="border-t-4 border-gray-800 pt-2">{problem.num1}</span>
+          </div>
+          <div className="h-2 bg-gray-200 mt-6 rounded-full" />
+        </div>
       ) : (
         <div className="text-right mb-8">
           <div className="text-6xl font-black text-gray-800 tracking-tight">{problem.num1}</div>
@@ -162,6 +201,42 @@ export default function ProblemCard({ type, digits, onSuccess, onFailure }: Prob
               {status === 'incorrect' && (<motion.div initial={{ scale: 0, rotate: 20 }} animate={{ scale: 1, rotate: 0 }} className="text-red-500"><X size={56} strokeWidth={4} /></motion.div>)}
             </AnimatePresence>
           </div>
+        </div>
+      )}
+
+      {(isPower || isRoot) && (
+        <div className="mt-6 flex flex-col items-center">
+          {showHelp ? (
+            <div className="w-full rounded-2xl bg-gray-50 border border-gray-100 p-5 text-center">
+              <span className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Steps</span>
+              {isPower ? (
+                <div className="text-3xl font-black text-gray-700 tracking-wide">
+                  {Array.from({ length: problem.num2 }).map((_, i) => (
+                    <span key={i}>
+                      {i > 0 && <span className="text-blue-400 mx-3">×</span>}
+                      {problem.num1}
+                    </span>
+                  ))}
+                </div>
+              ) : rootGroups.length === 0 ? (
+                <div className="text-3xl font-black text-gray-700">1</div>
+              ) : (
+                <div className="flex flex-wrap items-center justify-center gap-2 text-lg font-black text-gray-700">
+                  {rootGroups.map((g, gi) => (
+                    <span key={gi} className="px-2 py-1 rounded-lg bg-blue-100 text-blue-600 text-sm">
+                      {g.join(' · ')}
+                    </span>
+                  ))}
+                  <span className="text-gray-300 mx-2">→</span>
+                  <span>{rootGroups.map((g) => g[0]).join(' × ')}</span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button type="button" onClick={() => setShowHelp(true)} className="text-sm font-bold text-gray-400 hover:text-blue-500 transition-colors">
+              Press <kbd className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-500">H</kbd> for steps
+            </button>
+          )}
         </div>
       )}
 

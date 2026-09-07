@@ -9,6 +9,8 @@ export function generateStaticParams() {
     { type: 'division' },
     { type: 'gcd' },
     { type: 'lcm' },
+    { type: 'power' },
+    { type: 'root' },
     { type: 'fraction_addition' },
     { type: 'fraction_subtraction' },
     { type: 'fraction_multiplication' },

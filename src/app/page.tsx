@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Plus, Minus, X, Divide, Zap, Brain, Rocket, Sparkles, User, Trophy } from 'lucide-react';
+import { Plus, Minus, X, Divide, Zap, Brain, Rocket, Sparkles, User, Trophy, Superscript, Radical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const categories = [
@@ -13,6 +13,8 @@ const categories = [
   { id: 'division', name: 'Division', icon: Divide, color: 'bg-purple-500' },
   { id: 'gcd', name: 'GCD', icon: Brain, color: 'bg-indigo-500' },
   { id: 'lcm', name: 'LCM', icon: Sparkles, color: 'bg-orange-500' },
+  { id: 'power', name: 'Powers', icon: Superscript, color: 'bg-amber-500' },
+  { id: 'root', name: 'Roots', icon: Radical, color: 'bg-lime-600' },
   { id: 'fraction_addition', name: 'Frac +', icon: Plus, color: 'bg-teal-500' },
   { id: 'fraction_subtraction', name: 'Frac -', icon: Minus, color: 'bg-cyan-500' },
   { id: 'fraction_multiplication', name: 'Frac ×', icon: X, color: 'bg-rose-500' },
