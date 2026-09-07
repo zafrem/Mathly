@@ -10,6 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n/language-context';
 import Link from 'next/link';
+import { getKind } from '@/lib/practice/registry';
 
 export default function Level3Page() {
   const router = useRouter();
@@ -40,7 +41,7 @@ export default function Level3Page() {
 
   const renderCategory = (cat: { id: string; name: string; icon: React.ElementType; color: string }) => (
     <motion.div key={cat.id} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-      <Link href={`/practice/${cat.id}?level=3&digits=${digits}&time=${timeLimit}&user=${encodeURIComponent(userName)}`} className="group flex items-center justify-between p-4 rounded-2xl transition-all border-2 mb-3 bg-gray-50 dark:bg-gray-900 hover:bg-white dark:hover:bg-gray-800 hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-500/50 border-gray-100 dark:border-gray-800">
+      <Link href={`/practice/${getKind(cat.id).mode}/${cat.id}?level=3&digits=${digits}&time=${timeLimit}&user=${encodeURIComponent(userName)}`} className="group flex items-center justify-between p-4 rounded-2xl transition-all border-2 mb-3 bg-gray-50 dark:bg-gray-900 hover:bg-white dark:hover:bg-gray-800 hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-500/50 border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-4">
           <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center text-white transition-transform group-hover:scale-110", cat.color)}>
             <cat.icon size={24} />
